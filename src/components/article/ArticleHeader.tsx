@@ -2,17 +2,21 @@ import React from "react";
 import Link from "next/link";
 import { BlogPost } from "@/types/blog";
 import { SocialShareButtons } from "./SocialShareButtons";
+import { LikeButton } from "./LikeButton";
 
 interface ArticleHeaderProps {
   post: BlogPost;
+  initialIsLiked?: boolean;
 }
 
-export const ArticleHeader: React.FC<ArticleHeaderProps> = ({ post }) => {
+export const ArticleHeader: React.FC<ArticleHeaderProps> = ({ post, initialIsLiked = false }) => {
   const formattedDate = new Date(post.createdAt).toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
     year: "numeric",
   });
+
+  const likesCount = post._count?.likes ?? 0;
 
   return (
     <header className="space-y-6">
@@ -99,8 +103,16 @@ export const ArticleHeader: React.FC<ArticleHeaderProps> = ({ post }) => {
           </div>
         </div>
 
-        {/* Social Share Controls */}
-        <SocialShareButtons title={post.title} slug={post.slug} />
+        {/* Actions: Likes & Social Share */}
+        <div className="flex items-center gap-3">
+          <LikeButton
+            postId={post.id}
+            initialLikesCount={likesCount}
+            initialIsLiked={initialIsLiked}
+            variant="header"
+          />
+          <SocialShareButtons title={post.title} slug={post.slug} />
+        </div>
       </div>
 
       {/* Cover Image */}

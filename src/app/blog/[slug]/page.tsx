@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { ArticleHeader } from "@/components/article/ArticleHeader";
 import { AuthorBioCard } from "@/components/article/AuthorBioCard";
 import { SocialShareButtons } from "@/components/article/SocialShareButtons";
+import { LikeButton } from "@/components/article/LikeButton";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { BlogPost } from "@/types/blog";
 
@@ -105,15 +106,29 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
     notFound();
   }
 
-  // 2. Draft Access Control Check
+  // 2. Draft Access Control Check & Session resolution
+  const session = await getServerSession(authOptions);
   if (!post.published) {
-    const session = await getServerSession(authOptions);
     const isAdmin = session?.user?.role === "ADMIN";
     const isAuthor = session?.user?.id === post.authorId;
 
     if (!isAdmin && !isAuthor) {
       notFound();
     }
+  }
+
+  // Check if current user has liked this post
+  let initialIsLiked = false;
+  if (session?.user?.id) {
+    const existingLike = await prisma.like.findUnique({
+      where: {
+        postId_userId: {
+          postId: post.id,
+          userId: session.user.id,
+        },
+      },
+    });
+    initialIsLiked = !!existingLike;
   }
 
   // 3. Atomically increment view count
@@ -134,7 +149,7 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
   return (
     <article className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12">
       {/* Article Header */}
-      <ArticleHeader post={blogPost} />
+      <ArticleHeader post={blogPost} initialIsLiked={initialIsLiked} />
 
       {/* Article Body Typography */}
       <div
@@ -164,9 +179,17 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
       {/* Bottom Share & Author Bio */}
       <div className="space-y-8 pt-6 border-t border-gray-100 dark:border-gray-800">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h2 className="text-base font-bold text-gray-900 dark:text-white">
-            Enjoyed this article? Share with peers:
-          </h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-base font-bold text-gray-900 dark:text-white">
+              Enjoyed this article?
+            </h2>
+            <LikeButton
+              postId={blogPost.id}
+              initialLikesCount={blogPost._count?.likes ?? 0}
+              initialIsLiked={initialIsLiked}
+              variant="footer"
+            />
+          </div>
           <SocialShareButtons title={blogPost.title} slug={blogPost.slug} variant="footer" />
         </div>
 
