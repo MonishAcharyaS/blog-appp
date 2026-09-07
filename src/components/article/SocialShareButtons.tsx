@@ -75,6 +75,7 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
         <button
           type="button"
           id={`${prefix}share-copy-link-btn`}
+          data-testid={`${prefix}share-copy-link-btn`}
           aria-label="Copy link to clipboard"
           title="Copy link"
           onClick={handleCopyLink}
@@ -94,6 +95,7 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
         {copied && (
           <span
             id={`${prefix}share-copied-toast`}
+            data-testid="share-copied-toast"
             role="status"
             className="absolute -top-8 left-1/2 -translate-x-1/2 px-2.5 py-1 bg-gray-900 text-white text-[11px] font-semibold rounded-md shadow-lg whitespace-nowrap animate-fade-in"
           >
@@ -106,6 +108,7 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
       <button
         type="button"
         id={`${prefix}share-twitter-btn`}
+        data-testid={`${prefix}share-twitter-btn`}
         aria-label="Share on X / Twitter"
         title="Share on X"
         onClick={handleTwitterShare}
@@ -120,6 +123,7 @@ export const SocialShareButtons: React.FC<SocialShareButtonsProps> = ({
       <button
         type="button"
         id={`${prefix}share-linkedin-btn`}
+        data-testid={`${prefix}share-linkedin-btn`}
         aria-label="Share on LinkedIn"
         title="Share on LinkedIn"
         onClick={handleLinkedInShare}

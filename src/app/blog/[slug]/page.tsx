@@ -9,6 +9,7 @@ import { SocialShareButtons } from "@/components/article/SocialShareButtons";
 import { LikeButton } from "@/components/article/LikeButton";
 import { CommentSection } from "@/components/comments/CommentSection";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { calculateReadingTime } from "@/lib/readingTime";
 import { BlogPost } from "@/types/blog";
 
 interface ArticlePageProps {
@@ -138,10 +139,17 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
     data: { views: { increment: 1 } },
   });
 
-  // Assign updated views count
+  // Calculate dynamic reading time from content or retain post.readingTime if specified
+  const dynamicReadingTime =
+    post.readingTime && post.readingTime !== "3 min read"
+      ? post.readingTime
+      : calculateReadingTime(post.content || "");
+
+  // Assign updated views count and dynamic reading time
   const blogPost: BlogPost = {
     ...post,
     views: updatedPost.views,
+    readingTime: dynamicReadingTime,
   };
 
   // 4. Sanitize content
