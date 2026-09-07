@@ -1,0 +1,178 @@
+import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { ArticleHeader } from "@/components/article/ArticleHeader";
+import { AuthorBioCard } from "@/components/article/AuthorBioCard";
+import { SocialShareButtons } from "@/components/article/SocialShareButtons";
+import { sanitizeHtml } from "@/lib/sanitize";
+import { BlogPost } from "@/types/blog";
+
+interface ArticlePageProps {
+  params: Promise<{
+    slug: string;
+  }>;
+}
+
+// Dynamic SEO Metadata Generation
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await prisma.post.findUnique({
+    where: { slug },
+    include: {
+      author: true,
+      category: true,
+    },
+  });
+
+  if (!post) {
+    return {
+      title: "Article Not Found - Blogify",
+    };
+  }
+
+  const title = `${post.title} | Blogify`;
+  const description = post.excerpt || "Read this full article on Blogify.";
+  const url = `https://blogify.example.com/blog/${post.slug}`;
+  const images = post.coverImage ? [post.coverImage] : [];
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "article",
+      publishedTime: post.createdAt.toISOString(),
+      authors: post.author.name ? [post.author.name] : [],
+      images,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images,
+    },
+  };
+}
+
+export default async function BlogPostPage({ params }: ArticlePageProps) {
+  const { slug } = await params;
+
+  // 1. Fetch post with relations
+  const post = await prisma.post.findUnique({
+    where: { slug },
+    include: {
+      author: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          role: true,
+          bio: true,
+        },
+      },
+      category: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
+      tags: {
+        include: {
+          tag: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: {
+          likes: true,
+          comments: true,
+        },
+      },
+    },
+  });
+
+  if (!post) {
+    notFound();
+  }
+
+  // 2. Draft Access Control Check
+  if (!post.published) {
+    const session = await getServerSession(authOptions);
+    const isAdmin = session?.user?.role === "ADMIN";
+    const isAuthor = session?.user?.id === post.authorId;
+
+    if (!isAdmin && !isAuthor) {
+      notFound();
+    }
+  }
+
+  // 3. Atomically increment view count
+  const updatedPost = await prisma.post.update({
+    where: { id: post.id },
+    data: { views: { increment: 1 } },
+  });
+
+  // Assign updated views count
+  const blogPost: BlogPost = {
+    ...post,
+    views: updatedPost.views,
+  };
+
+  // 4. Sanitize content
+  const sanitizedContent = sanitizeHtml(blogPost.content || "");
+
+  return (
+    <article className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12">
+      {/* Article Header */}
+      <ArticleHeader post={blogPost} />
+
+      {/* Article Body Typography */}
+      <div
+        id="article-content-body"
+        data-testid="article-content-body"
+        className="prose-article"
+        dangerouslySetInnerHTML={{ __html: sanitizedContent }}
+      />
+
+      {/* Article Tags */}
+      {blogPost.tags && blogPost.tags.length > 0 && (
+        <div className="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-gray-400 mr-2">
+            Tags:
+          </span>
+          {blogPost.tags.map(({ tag }) => (
+            <span
+              key={tag.id}
+              className="px-3 py-1 rounded-xl text-xs font-semibold bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-[#F0EFFF] hover:text-[#5B48EE] dark:hover:bg-indigo-950/60 dark:hover:text-indigo-400 transition-colors"
+            >
+              #{tag.name}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {/* Bottom Share & Author Bio */}
+      <div className="space-y-8 pt-6 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <h2 className="text-base font-bold text-gray-900 dark:text-white">
+            Enjoyed this article? Share with peers:
+          </h2>
+          <SocialShareButtons title={blogPost.title} slug={blogPost.slug} variant="footer" />
+        </div>
+
+        {/* Author Bio Card */}
+        <AuthorBioCard author={blogPost.author} />
+      </div>
+    </article>
+  );
+}

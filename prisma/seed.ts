@@ -229,6 +229,20 @@ async function main() {
       categoryId: categories["ui-ux-design"].id,
       tagSlugs: ["design-systems", "tailwind-css"],
     },
+    {
+      title: "Upcoming Architectural Preview (Draft)",
+      slug: "upcoming-architectural-preview-draft",
+      excerpt: "Internal preview of upcoming distributed database migrations and caching layers.",
+      content: "<h2>Confidential Preview</h2><p>This article is currently an unpublished draft reserved for editorial review.</p>",
+      coverImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200",
+      published: false,
+      isFeatured: false,
+      views: 0,
+      readingTime: "3 min read",
+      authorId: admin.id,
+      categoryId: categories["cloud-architecture"].id,
+      tagSlugs: ["typescript"],
+    },
   ];
 
   for (const postItem of postsData) {
