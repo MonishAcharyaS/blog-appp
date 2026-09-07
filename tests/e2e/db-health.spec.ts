@@ -11,7 +11,10 @@ test.describe("Database & API Health Integration Test", () => {
     expect(body.status).toBe("ok");
     expect(body.database).toBe("connected");
     expect(typeof body.userCount).toBe("number");
-    expect(typeof body.postCount).toBe("number");
+    expect(body.userCount).toBeGreaterThanOrEqual(3);
+    expect(body.postCount).toBeGreaterThanOrEqual(4);
+    expect(body.categoryCount).toBe(5);
+    expect(body.tagCount).toBe(8);
   });
 
   test("Browser visits home page and renders cleanly without error overlays", async ({
