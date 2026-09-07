@@ -7,7 +7,7 @@
 Write-Host ">>> Checking GitHub CLI authentication..." -ForegroundColor Cyan
 
 # Check if authenticated
-$authCheck = gh auth status 2>&1
+gh auth status 2>&1 | Out-Null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "WARNING: You are not currently logged into GitHub CLI." -ForegroundColor Yellow
     Write-Host "Please run 'gh auth login' first, then re-run this script." -ForegroundColor Yellow
@@ -137,7 +137,7 @@ $issues = @(
         title = "[PROJ-405] End-to-End Test Automation, Security Audit & CI/CD Deployment Pipeline"
         body = "## User Story`nAs a DevOps & Release Lead, I want a complete automated verification suite, GitHub Actions CI workflow, and Vercel deployment configuration.`n`n## Summary`nConfigure GitHub Actions CI, execute XSS security audits, Lighthouse audit (target 90+), and prepare Vercel deployment.`n`n## Positive Test Cases`n- npm run build completes with 0 errors.`n- GitHub Actions CI workflow passes.`n- Vercel deployment succeeds.`n`n## Negative Test Cases`n- Broken TypeScript or import fails CI build and prevents deployment.`n`n## Definition of Done`n- Production build green; security audit clean; deployment docs ready."
         labels = "devops,qa,security,p0"
-    )
+    }
 )
 
 $count = 0
