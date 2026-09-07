@@ -108,32 +108,32 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-[85vh] flex flex-col justify-center items-center px-4 py-12 sm:px-6 lg:px-8">
+    <div className="min-h-[85vh] flex flex-col justify-center items-center px-4 py-12 sm:px-6 lg:px-8 transition-colors duration-200">
       <div className="w-full max-w-md space-y-8">
         {/* Brand Header */}
         <div className="text-center">
           <Link href="/" className="inline-flex items-center gap-1.5 group">
-            <span className="text-3xl font-black tracking-tight text-gray-950 font-sans">
+            <span className="text-3xl font-black tracking-tight text-gray-950 dark:text-white font-sans transition-colors">
               Blogify
             </span>
             <span className="w-2.5 h-2.5 rounded-full bg-[#5B48EE]" />
           </Link>
-          <h1 className="mt-6 text-2xl sm:text-3xl font-bold tracking-tight text-gray-900">
+          <h1 className="mt-6 text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white transition-colors">
             Create an account
           </h1>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 transition-colors">
             Join our community to share stories, follow creators, and comment
           </p>
         </div>
 
         {/* Card Container */}
-        <div className="bg-white border border-gray-200/90 rounded-2xl p-6 sm:p-8 shadow-xs">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200/90 dark:border-gray-800 rounded-2xl p-6 sm:p-8 shadow-xs transition-colors duration-200">
           {/* Server Error Banner */}
           {serverError && (
             <div
               id="register-error-banner"
               role="alert"
-              className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 flex items-center gap-3 text-red-700 text-sm font-medium"
+              className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 flex items-center gap-3 text-red-700 dark:text-red-300 text-sm font-medium"
             >
               <svg
                 className="w-5 h-5 text-red-500 shrink-0"
@@ -157,7 +157,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="register-name"
-                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5"
+                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5"
               >
                 Full Name
               </label>
@@ -170,7 +170,7 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Monish Achari"
-                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 bg-white transition-all focus:outline-none focus:ring-2 focus:ring-[#5B48EE] focus:border-transparent"
+                className="w-full rounded-xl border border-gray-200 dark:border-gray-700 px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 bg-white dark:bg-gray-800/80 transition-all focus:outline-none focus:ring-2 focus:ring-[#5B48EE] focus:border-transparent"
               />
             </div>
 
@@ -178,7 +178,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="register-email"
-                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5"
+                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5"
               >
                 Email address
               </label>
@@ -195,14 +195,14 @@ export default function RegisterPage() {
                   if (emailError) setEmailError(null);
                 }}
                 placeholder="name@example.com"
-                className={`w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 bg-white transition-all focus:outline-none focus:ring-2 ${
+                className={`w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 bg-white dark:bg-gray-800/80 transition-all focus:outline-none focus:ring-2 ${
                   emailError
                     ? "border-red-300 focus:ring-red-500"
-                    : "border-gray-200 focus:ring-[#5B48EE] focus:border-transparent"
+                    : "border-gray-200 dark:border-gray-700 focus:ring-[#5B48EE] focus:border-transparent"
                 }`}
               />
               {emailError && (
-                <p id="email-validation-error" className="mt-1.5 text-xs text-red-600 font-medium">
+                <p id="email-validation-error" className="mt-1.5 text-xs text-red-600 dark:text-red-400 font-medium">
                   {emailError}
                 </p>
               )}
@@ -212,7 +212,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="register-password"
-                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5"
+                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5"
               >
                 Password
               </label>
@@ -230,10 +230,10 @@ export default function RegisterPage() {
                     if (passwordError) setPasswordError(null);
                   }}
                   placeholder="At least 6 characters"
-                  className={`w-full rounded-xl border pl-3.5 pr-11 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 bg-white transition-all focus:outline-none focus:ring-2 ${
+                  className={`w-full rounded-xl border pl-3.5 pr-11 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 bg-white dark:bg-gray-800/80 transition-all focus:outline-none focus:ring-2 ${
                     passwordError
                       ? "border-red-300 focus:ring-red-500"
-                      : "border-gray-200 focus:ring-[#5B48EE] focus:border-transparent"
+                      : "border-gray-200 dark:border-gray-700 focus:ring-[#5B48EE] focus:border-transparent"
                   }`}
                 />
                 <button
@@ -241,7 +241,7 @@ export default function RegisterPage() {
                   id="register-toggle-password-btn"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                 >
                   {showPassword ? (
                     <svg
@@ -281,11 +281,11 @@ export default function RegisterPage() {
                 </button>
               </div>
               {passwordError ? (
-                <p id="password-validation-error" className="mt-1.5 text-xs text-red-600 font-medium">
+                <p id="password-validation-error" className="mt-1.5 text-xs text-red-600 dark:text-red-400 font-medium">
                   {passwordError}
                 </p>
               ) : (
-                <p className="mt-1 text-[11px] text-gray-500">
+                <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
                   Must be at least 6 characters.
                 </p>
               )}
@@ -295,7 +295,7 @@ export default function RegisterPage() {
             <div>
               <label
                 htmlFor="register-confirm-password"
-                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 mb-1.5"
+                className="block text-xs font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300 mb-1.5"
               >
                 Confirm Password
               </label>
@@ -311,27 +311,27 @@ export default function RegisterPage() {
                   if (confirmPasswordError) setConfirmPasswordError(null);
                 }}
                 placeholder="Re-enter password"
-                className={`w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 bg-white transition-all focus:outline-none focus:ring-2 ${
+                className={`w-full rounded-xl border px-3.5 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 bg-white dark:bg-gray-800/80 transition-all focus:outline-none focus:ring-2 ${
                   confirmPasswordError
                     ? "border-red-300 focus:ring-red-500"
-                    : "border-gray-200 focus:ring-[#5B48EE] focus:border-transparent"
+                    : "border-gray-200 dark:border-gray-700 focus:ring-[#5B48EE] focus:border-transparent"
                 }`}
               />
               {confirmPasswordError && (
-                <p id="confirm-password-error" className="mt-1.5 text-xs text-red-600 font-medium">
+                <p id="confirm-password-error" className="mt-1.5 text-xs text-red-600 dark:text-red-400 font-medium">
                   {confirmPasswordError}
                 </p>
               )}
             </div>
 
             {/* Terms Disclaimer */}
-            <p className="text-[11px] text-gray-500 leading-relaxed">
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
               By creating an account, you agree to our{" "}
-              <a href="#terms" className="text-[#5B48EE] hover:underline">
+              <a href="#terms" className="text-[#5B48EE] dark:text-[#818CF8] hover:underline">
                 Terms of Service
               </a>{" "}
               and{" "}
-              <a href="#privacy" className="text-[#5B48EE] hover:underline">
+              <a href="#privacy" className="text-[#5B48EE] dark:text-[#818CF8] hover:underline">
                 Privacy Policy
               </a>
               .
@@ -342,7 +342,7 @@ export default function RegisterPage() {
               id="register-submit-btn"
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-[#5B48EE] hover:bg-[#4936E3] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5B48EE] shadow-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full flex justify-center items-center py-2.5 px-4 rounded-xl text-sm font-semibold text-white bg-[#5B48EE] hover:bg-[#4936E3] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#5B48EE] shadow-sm transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -374,12 +374,12 @@ export default function RegisterPage() {
           </form>
 
           {/* Card Footer / Switch to Login */}
-          <div className="mt-6 pt-5 border-t border-gray-100 text-center text-xs text-gray-500">
+          <div className="mt-6 pt-5 border-t border-gray-100 dark:border-gray-800 text-center text-xs text-gray-500 dark:text-gray-400">
             Already have an account?{" "}
             <Link
               id="link-to-login"
               href="/login"
-              className="font-semibold text-[#5B48EE] hover:text-[#4936E3] transition-colors"
+              className="font-semibold text-[#5B48EE] hover:text-[#4936E3] dark:text-[#818CF8] dark:hover:text-[#A5B4FC] transition-colors"
             >
               Sign in
             </Link>

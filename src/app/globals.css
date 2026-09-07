@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme inline {
   --color-brand: #5B48EE;
   --color-brand-hover: #4936E3;
@@ -7,24 +9,41 @@
   --color-brand-ring: #818CF8;
   
   --color-canvas: #F8F9FB;
+  --color-canvas-dark: #090D16;
   --color-surface: #FFFFFF;
   --color-surface-dark: #111827;
+  --color-surface-card-dark: #1E293B;
   
   --color-border-subtle: #F3F4F6;
   --color-border-default: #E5E7EB;
+  --color-border-dark: #374151;
   
   --color-text-main: #111827;
+  --color-text-main-dark: #F9FAFB;
   --color-text-body: #4B5563;
+  --color-text-body-dark: #D1D5DB;
   --color-text-muted: #6B7280;
+  --color-text-muted-dark: #9CA3AF;
   --color-text-faint: #9CA3AF;
   
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-@layer base {
-  body {
-    background-color: var(--color-canvas);
-    color: var(--color-text-main);
-    font-family: var(--font-sans);
-  }
+:root {
+  --bg-app: #F8F9FB;
+  --text-app: #111827;
+  color-scheme: light;
+}
+
+.dark {
+  --bg-app: #090D16;
+  --text-app: #F9FAFB;
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--bg-app);
+  color: var(--text-app);
+  font-family: var(--font-sans);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
