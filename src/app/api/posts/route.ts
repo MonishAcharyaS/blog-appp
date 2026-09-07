@@ -104,3 +104,92 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// POST: Create a new article (Admin only)
+export async function POST(request: NextRequest) {
+  try {
+    const session = await (await import("next-auth")).getServerSession(
+      (await import("@/lib/auth")).authOptions
+    );
+
+    if (!session || session.user?.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Unauthorized: Administrator access required" },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
+    const title = (body.title || "").trim();
+    const content = body.content || "";
+    const excerpt = (body.excerpt || "").trim();
+    const coverImage = body.coverImage || null;
+    const categoryId = body.categoryId || null;
+    const published = !!body.published;
+    const isFeatured = !!body.isFeatured;
+
+    if (!title) {
+      return NextResponse.json(
+        { error: "Title is required" },
+        { status: 400 }
+      );
+    }
+
+    // Generate slug from title
+    let baseSlug = title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    if (!baseSlug) {
+      baseSlug = `article-${Date.now().toString(36)}`;
+    }
+
+    // Check for duplicate slug and append unique suffix if conflict exists
+    let slug = baseSlug;
+    const existingPost = await prisma.post.findUnique({
+      where: { slug },
+      select: { id: true },
+    });
+
+    if (existingPost) {
+      slug = `${baseSlug}-${Date.now().toString(36)}`;
+    }
+
+    const readingTime = (await import("@/lib/readingTime")).calculateReadingTime(
+      content
+    );
+
+    const newPost = await prisma.post.create({
+      data: {
+        title,
+        slug,
+        excerpt: excerpt || title,
+        content,
+        coverImage,
+        categoryId: categoryId || undefined,
+        published,
+        isFeatured,
+        readingTime,
+        authorId: session.user.id,
+      },
+      include: {
+        author: {
+          select: { id: true, name: true, image: true },
+        },
+        category: {
+          select: { id: true, name: true, slug: true },
+        },
+      },
+    });
+
+    return NextResponse.json({ post: newPost }, { status: 201 });
+  } catch (error: any) {
+    console.error("Error creating post:", error);
+    return NextResponse.json(
+      { error: error.message || "Failed to create post" },
+      { status: 500 }
+    );
+  }
+}
+

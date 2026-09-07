@@ -141,8 +141,12 @@ test.describe("PROJ-302: Interactive Like/Heart System E2E Tests", () => {
     );
 
     if (!isLiked) {
+      const responsePromise = page.waitForResponse(
+        (resp) => resp.url().includes("/like") && resp.status() === 200
+      );
       await likeBtn.click();
-      await page.waitForTimeout(600);
+      await responsePromise;
+      await expect(page.locator("#header-like-icon")).toHaveClass(/fill-rose-500/);
     }
 
     const countBeforeRefresh = await page.locator("#header-like-count").innerText();
