@@ -17,7 +17,7 @@ test.describe("RBAC Edge Middleware & Route Guard E2E Tests", () => {
   }) => {
     await page.goto("/admin");
     await expect(page).toHaveURL(/\/login\?callbackUrl=%2Fadmin/);
-    await expect(page.locator("h1")).toHaveText("Sign In to Blogify");
+    await expect(page.locator("h1")).toHaveText("Welcome back");
   });
 
   test("TC-104.5: Anonymous request to /api/admin/metrics returns 401 Unauthorized", async ({
