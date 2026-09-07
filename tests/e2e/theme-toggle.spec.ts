@@ -121,7 +121,7 @@ test.describe("Design System & Dark/Light Mode Switcher E2E Tests", () => {
     await expect(html).toHaveClass(/dark/);
 
     // Verify card has dark classes applied
-    const loginCard = page.locator("form").locator("..");
+    const loginCard = page.locator("#login-email").locator("xpath=ancestor::form/..");
     await expect(loginCard).toHaveClass(/dark:bg-gray-900/);
     await expect(loginCard).toHaveClass(/dark:border-gray-800/);
   });

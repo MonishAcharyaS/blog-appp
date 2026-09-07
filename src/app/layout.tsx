@@ -4,7 +4,8 @@ import "./globals.css";
 
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
-import { ThemeToggle } from "@/components/common/ThemeToggle";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -43,11 +44,9 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col antialiased">
         <AuthProvider>
           <ThemeProvider>
-            {/* Top fixed theme switcher floating bar for easy global accessibility */}
-            <div className="fixed top-4 right-4 z-50">
-              <ThemeToggle />
-            </div>
-            {children}
+            <Navbar />
+            <main className="flex-1 flex flex-col">{children}</main>
+            <Footer />
           </ThemeProvider>
         </AuthProvider>
       </body>
