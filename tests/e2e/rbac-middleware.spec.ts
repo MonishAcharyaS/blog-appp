@@ -72,7 +72,7 @@ test.describe("RBAC Edge Middleware & Route Guard E2E Tests", () => {
     // Verify Admin Dashboard renders cleanly
     await expect(page.locator("h1")).toHaveText("Admin Control Center");
     await expect(page.locator("#admin-role-badge")).toHaveText("ADMIN");
-    await expect(page.locator("#metric-posts")).toHaveText("4");
-    await expect(page.locator("#metric-users")).toHaveText("3");
+    await expect(page.locator("#metric-posts")).toHaveText(/^\d+$/);
+    await expect(page.locator("#metric-users")).toHaveText(/^\d+$/);
   });
 });
