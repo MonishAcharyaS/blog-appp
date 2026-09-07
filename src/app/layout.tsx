@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
+import { AuthProvider } from "@/components/providers/AuthProvider";
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -19,7 +21,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">{children}</body>
+      <body className="min-h-full flex flex-col bg-slate-50 text-slate-900">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }
