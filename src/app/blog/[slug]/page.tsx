@@ -7,6 +7,7 @@ import { ArticleHeader } from "@/components/article/ArticleHeader";
 import { AuthorBioCard } from "@/components/article/AuthorBioCard";
 import { SocialShareButtons } from "@/components/article/SocialShareButtons";
 import { LikeButton } from "@/components/article/LikeButton";
+import { CommentSection } from "@/components/comments/CommentSection";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { BlogPost } from "@/types/blog";
 
@@ -195,6 +196,14 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
 
         {/* Author Bio Card */}
         <AuthorBioCard author={blogPost.author} />
+
+        {/* 2-Level Nested Comment Section */}
+        <CommentSection
+          postId={blogPost.id}
+          postSlug={blogPost.slug}
+          postAuthorId={blogPost.author.id}
+          initialCommentsCount={blogPost._count?.comments ?? 0}
+        />
       </div>
     </article>
   );

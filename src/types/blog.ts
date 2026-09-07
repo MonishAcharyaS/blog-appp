@@ -52,3 +52,24 @@ export interface PostsApiResponse {
   page: number;
   totalPages: number;
 }
+
+export interface CommentAuthor {
+  id: string;
+  name: string | null;
+  image: string | null;
+  role: string;
+}
+
+export interface CommentItemType {
+  id: string;
+  content: string;
+  postId: string;
+  authorId: string;
+  parentId: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+  isEdited?: boolean;
+  author: CommentAuthor;
+  replies?: CommentItemType[];
+}
+
