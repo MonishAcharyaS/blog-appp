@@ -58,6 +58,20 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = user.role;
         token.isBanned = user.isBanned;
+      } else if (token.id) {
+        // Sync role and isBanned from database to reflect any admin updates immediately
+        try {
+          const freshUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { role: true, isBanned: true },
+          });
+          if (freshUser) {
+            token.role = freshUser.role;
+            token.isBanned = freshUser.isBanned;
+          }
+        } catch (err) {
+          console.error("Failed to sync fresh user data in jwt callback:", err);
+        }
       }
       return token;
     },

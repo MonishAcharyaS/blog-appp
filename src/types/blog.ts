@@ -105,3 +105,19 @@ export interface AdminCommentItem {
   };
 }
 
+export interface AdminUserItem {
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+  role: "ADMIN" | "READER";
+  isBanned: boolean;
+  createdAt: string;
+  updatedAt: string;
+  _count: {
+    posts: number;
+    comments: number;
+    likes: number;
+  };
+}
+

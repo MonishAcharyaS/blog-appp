@@ -17,6 +17,12 @@ export async function middleware(req: NextRequest) {
         { status: 401 }
       );
     }
+    if (token.isBanned) {
+      return NextResponse.json(
+        { error: "Forbidden: Account suspended" },
+        { status: 403 }
+      );
+    }
     if (token.role !== "ADMIN") {
       return NextResponse.json(
         { error: "Forbidden: Admin access required" },
@@ -32,6 +38,12 @@ export async function middleware(req: NextRequest) {
       const loginUrl = new URL("/login", req.url);
       loginUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(loginUrl);
+    }
+
+    if (token.isBanned) {
+      const suspendedUrl = new URL("/login", req.url);
+      suspendedUrl.searchParams.set("error", "suspended");
+      return NextResponse.redirect(suspendedUrl);
     }
 
     if (token.role !== "ADMIN") {
