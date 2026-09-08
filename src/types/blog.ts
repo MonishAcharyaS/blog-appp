@@ -73,3 +73,35 @@ export interface CommentItemType {
   replies?: CommentItemType[];
 }
 
+export interface AdminCommentItem {
+  id: string;
+  content: string;
+  postId: string;
+  authorId: string;
+  parentId: string | null;
+  createdAt: string;
+  updatedAt: string;
+  author: {
+    id: string;
+    name: string | null;
+    email: string;
+    image: string | null;
+    role: string;
+  };
+  post: {
+    id: string;
+    title: string;
+    slug: string;
+  };
+  parent?: {
+    id: string;
+    content: string;
+    author: {
+      name: string | null;
+    };
+  } | null;
+  _count?: {
+    replies: number;
+  };
+}
+

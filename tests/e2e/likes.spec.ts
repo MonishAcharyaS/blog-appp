@@ -112,12 +112,15 @@ test.describe("PROJ-302: Interactive Like/Heart System E2E Tests", () => {
     const currentCount = parseInt(currentCountText.trim(), 10) || 0;
 
     // Click to unlike
+    const unlikePromise = page.waitForResponse(
+      (resp) => resp.url().includes("/like") && resp.status() === 200
+    );
     await likeBtn.click();
+    await unlikePromise;
 
     // Verify decrement
     await expect(likeCount).toHaveText(String(Math.max(0, currentCount - 1)));
     await expect(page.locator("#header-like-icon")).not.toHaveClass(/fill-rose-500/);
-    await page.waitForTimeout(600);
   });
 
   test("TC-302.4: Like state persists across page refreshes", async ({ page }) => {
