@@ -70,17 +70,17 @@ export default async function TrendingPage() {
       {/* Trending Header Banner */}
       <div
         id="trending-header"
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-950 via-orange-950 to-neutral-950 text-white p-8 sm:p-12 border border-orange-800/40 shadow-xl"
+        className="relative overflow-hidden rounded-3xl spatial-glass p-8 sm:p-12 shadow-2xl transition-all preserve-3d"
       >
         <div className="relative z-10 max-w-2xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-400/30">
-            <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-            <span>Real-Time Popularity</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-400/30">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.8)]" />
+            <span>Real-Time Velocity</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-gray-950 dark:text-white">
             Trending on Blogify
           </h1>
-          <p className="text-sm sm:text-base text-amber-100/80 leading-relaxed font-normal">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed font-normal">
             The stories sparking discussion, gaining traction, and driving developer conversations today. Ranked dynamically by community engagement, reads, and applause.
           </p>
         </div>

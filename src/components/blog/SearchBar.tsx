@@ -65,7 +65,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         onChange={(e) => setInputValue(e.target.value)}
         placeholder={placeholder}
         aria-label="Search articles"
-        className="w-full pl-10 pr-10 py-3 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#5B48EE] focus:border-transparent transition-all shadow-xs"
+        className="w-full pl-10 pr-10 py-3 rounded-2xl spatial-glass text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#5B48EE] focus:border-transparent transition-all shadow-md focus:shadow-[0_0_20px_rgba(91,72,238,0.25)]"
       />
 
       {inputValue && (

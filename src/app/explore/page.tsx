@@ -106,17 +106,17 @@ export default async function ExplorePage({ searchParams }: ExplorePageProps) {
       {/* Header Banner */}
       <div
         id="explore-header"
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-indigo-950 to-gray-950 text-white p-8 sm:p-12 border border-indigo-800/40 shadow-xl"
+        className="relative overflow-hidden rounded-3xl spatial-glass p-8 sm:p-12 shadow-2xl transition-all preserve-3d"
       >
         <div className="relative z-10 max-w-2xl space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
-            <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/15 text-[#5B48EE] dark:text-indigo-300 border border-indigo-400/30">
+            <span className="w-2 h-2 rounded-full bg-[#5B48EE] animate-ping" />
             <span>Discover Knowledge</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight text-gray-950 dark:text-white">
             Explore Topics & Ideas
           </h1>
-          <p className="text-sm sm:text-base text-gray-300 leading-relaxed font-normal">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 leading-relaxed font-normal">
             Dive into deep technical tutorials, architectural case studies, product insights, and engineering stories written by authors across the globe.
           </p>
 

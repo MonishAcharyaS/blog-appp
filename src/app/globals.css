@@ -30,14 +30,16 @@
 }
 
 :root {
-  --bg-app: #F8F9FB;
-  --text-app: #111827;
+  --bg-app: #F6F8FC;
+  --text-app: #0F172A;
+  --perspective: 1200px;
   color-scheme: light;
 }
 
 .dark {
-  --bg-app: #090D16;
-  --text-app: #F9FAFB;
+  --bg-app: #070B14;
+  --text-app: #F8FAFC;
+  --perspective: 1200px;
   color-scheme: dark;
 }
 
@@ -45,7 +47,127 @@ body {
   background-color: var(--bg-app);
   color: var(--text-app);
   font-family: var(--font-sans);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Apple-Style Spatial 3D & Glassmorphism Utilities
+   ========================================================================== */
+
+/* 3D Perspective Context */
+.perspective-container {
+  perspective: var(--perspective);
+  transform-style: preserve-3d;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* Hardware-accelerated depth layers */
+.translate-z-0 { transform: translateZ(0px); }
+.translate-z-10 { transform: translateZ(10px); }
+.translate-z-20 { transform: translateZ(20px); }
+.translate-z-30 { transform: translateZ(30px); }
+.translate-z-40 { transform: translateZ(40px); }
+.translate-z-50 { transform: translateZ(50px); }
+
+/* Spatial Frosted Glass */
+.spatial-glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.03),
+    0 10px 25px -5px rgba(0, 0, 0, 0.05),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.dark .spatial-glass {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 4px 6px -1px rgba(0, 0, 0, 0.25),
+    0 20px 40px -15px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Spatial Glass Card */
+.spatial-card {
+  transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0.2, 1);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.spatial-card:hover {
+  box-shadow: 
+    0 20px 35px -10px rgba(91, 72, 238, 0.12),
+    0 10px 20px -5px rgba(0, 0, 0, 0.04);
+}
+
+.dark .spatial-card:hover {
+  box-shadow: 
+    0 25px 45px -12px rgba(129, 140, 248, 0.18),
+    0 15px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+/* 3D Floating Glass Dock Navbar */
+.spatial-nav-dock {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 10px 30px -10px rgba(0, 0, 0, 0.06),
+    0 4px 6px -2px rgba(0, 0, 0, 0.02),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 1);
+}
+
+.dark .spatial-nav-dock {
+  background: rgba(11, 17, 33, 0.75);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 15px 35px -10px rgba(0, 0, 0, 0.6),
+    0 5px 15px -5px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Subtle Ambient Orb Animations */
+@keyframes float-orb-1 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(40px, -50px, 0) scale(1.1); }
+}
+
+@keyframes float-orb-2 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-50px, 40px, 0) scale(1.08); }
+}
+
+@keyframes float-orb-3 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(30px, 30px, 0) scale(0.95); }
+}
+
+.animate-orb-1 { animation: float-orb-1 18s ease-in-out infinite; }
+.animate-orb-2 { animation: float-orb-2 22s ease-in-out infinite; }
+.animate-orb-3 { animation: float-orb-3 16s ease-in-out infinite; }
+
+/* Reduced Motion Safety */
+@media (prefers-reduced-motion: reduce) {
+  .spatial-card,
+  .animate-orb-1,
+  .animate-orb-2,
+  .animate-orb-3 {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
 }
 
 /* Article Typography Styling */

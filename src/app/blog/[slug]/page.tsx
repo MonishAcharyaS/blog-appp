@@ -169,13 +169,14 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
   const sanitizedContent = sanitizeHtml(blogPost.content || "");
 
   return (
-    <article className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12">
-      {/* Article Header */}
-      <ArticleHeader
-        post={blogPost}
-        initialIsLiked={initialIsLiked}
-        initialIsBookmarked={initialIsBookmarked}
-      />
+    <article className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14 space-y-10">
+      <div className="spatial-glass rounded-3xl p-6 sm:p-10 lg:p-12 space-y-10 shadow-2xl transition-all">
+        {/* Article Header */}
+        <ArticleHeader
+          post={blogPost}
+          initialIsLiked={initialIsLiked}
+          initialIsBookmarked={initialIsBookmarked}
+        />
 
       {/* Article Body Typography */}
       <div
@@ -234,6 +235,7 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
           postAuthorId={blogPost.author.id}
           initialCommentsCount={blogPost._count?.comments ?? 0}
         />
+      </div>
       </div>
     </article>
   );

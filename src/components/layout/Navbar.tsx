@@ -90,8 +90,8 @@ export function Navbar() {
   const isTrendingActive = pathname.startsWith("/trending");
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-gray-200/80 dark:border-gray-800/80 bg-white/85 dark:bg-gray-900/85 backdrop-blur-md transition-colors duration-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-17 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 w-full transition-all duration-300 px-3 sm:px-6 pt-2 sm:pt-3">
+      <div className="max-w-7xl mx-auto rounded-2xl sm:rounded-3xl spatial-nav-dock px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between gap-4 transition-all duration-300">
         {/* Brand Logo & Main Nav Links */}
         <div className="flex items-center gap-8">
           <Link
@@ -99,10 +99,10 @@ export function Navbar() {
             href="/"
             className="flex items-center gap-1.5 group focus:outline-none"
           >
-            <span className="text-2xl font-black tracking-tight text-gray-950 dark:text-white font-sans transition-colors">
+            <span className="text-2xl font-black tracking-tight text-gray-950 dark:text-white font-sans transition-colors group-hover:text-[#5B48EE] dark:group-hover:text-[#818CF8]">
               Blogify
             </span>
-            <span className="w-2.5 h-2.5 rounded-full bg-[#5B48EE]" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#5B48EE] shadow-[0_0_12px_rgba(91,72,238,0.8)] animate-pulse" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-1 text-sm font-medium">

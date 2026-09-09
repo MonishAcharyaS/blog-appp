@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { BlogPost } from "@/types/blog";
+import { TiltCard } from "@/components/3d/TiltCard";
 
 interface FeaturedHeroProps {
   post: BlogPost | null;
@@ -16,11 +17,16 @@ export const FeaturedHero: React.FC<FeaturedHeroProps> = ({ post }) => {
   });
 
   return (
-    <section
-      id="featured-hero-section"
-      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/20 dark:from-gray-900 dark:via-gray-900/90 dark:to-gray-800/40 border border-gray-200/80 dark:border-gray-800 p-6 sm:p-8 lg:p-10 shadow-sm transition-all"
+    <TiltCard
+      maxTilt={5}
+      glareOpacity={0.15}
+      className="w-full"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+      <section
+        id="featured-hero-section"
+        className="relative overflow-hidden rounded-3xl spatial-glass p-6 sm:p-8 lg:p-10 transition-all preserve-3d"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center preserve-3d">
         {/* Left Content Column */}
         <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
           <div className="space-y-4">
@@ -133,5 +139,6 @@ export const FeaturedHero: React.FC<FeaturedHeroProps> = ({ post }) => {
         </div>
       </div>
     </section>
+  </TiltCard>
   );
 };

@@ -6,6 +6,7 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { AmbientOrbs } from "@/components/3d/AmbientOrbs";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -41,12 +42,15 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-full flex flex-col antialiased">
+      <body className="min-h-full flex flex-col antialiased relative selection:bg-indigo-500/20 selection:text-indigo-600">
         <AuthProvider>
           <ThemeProvider>
-            <Navbar />
-            <main className="flex-1 flex flex-col">{children}</main>
-            <Footer />
+            <AmbientOrbs />
+            <div className="relative z-10 flex-1 flex flex-col min-h-screen">
+              <Navbar />
+              <main className="flex-1 flex flex-col">{children}</main>
+              <Footer />
+            </div>
           </ThemeProvider>
         </AuthProvider>
       </body>

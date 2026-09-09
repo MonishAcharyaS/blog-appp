@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { BlogPost } from "@/types/blog";
+import { TiltCard } from "@/components/3d/TiltCard";
 
 interface BlogCardProps {
   post: BlogPost;
@@ -17,13 +18,14 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
   const commentsCount = post._count?.comments ?? 0;
 
   return (
-    <article
-      data-testid="blog-card"
-      data-post-slug={post.slug}
-      data-likes={likesCount}
-      data-views={post.views}
-      className="group flex flex-col bg-white dark:bg-gray-900 border border-gray-200/80 dark:border-gray-800 rounded-2xl overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-    >
+    <TiltCard maxTilt={7} glareOpacity={0.18} className="h-full">
+      <article
+        data-testid="blog-card"
+        data-post-slug={post.slug}
+        data-likes={likesCount}
+        data-views={post.views}
+        className="group flex flex-col h-full spatial-glass rounded-2xl sm:rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 preserve-3d"
+      >
       {/* Thumbnail */}
       <Link
         href={`/posts/${post.slug}`}
@@ -131,5 +133,6 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
         </div>
       </div>
     </article>
+  </TiltCard>
   );
 };

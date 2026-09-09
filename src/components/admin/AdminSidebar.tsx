@@ -101,7 +101,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
         data-testid="admin-sidebar"
         className={`${
           mobileMenuOpen ? "block" : "hidden"
-        } md:flex flex-col justify-between w-full md:w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 shrink-0 min-h-screen p-5`}
+        } md:flex flex-col justify-between w-full md:w-64 spatial-glass border-r border-white/20 dark:border-white/10 shrink-0 min-h-screen p-5 transition-all shadow-xl`}
       >
         <div className="space-y-6">
           {/* Logo & Platform Info */}

@@ -23,10 +23,10 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
         type="button"
         id="category-pill-all"
         onClick={() => onSelectCategory("all")}
-        className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+        className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
           selectedCategory === "all" || !selectedCategory
-            ? "bg-[#5B48EE] text-white shadow-xs"
-            : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 border border-gray-200/80 dark:border-gray-800 hover:border-[#5B48EE]/40 hover:text-[#5B48EE] dark:hover:text-[#818CF8]"
+            ? "bg-[#5B48EE] text-white shadow-[0_4px_14px_rgba(91,72,238,0.4)] scale-105"
+            : "spatial-glass text-gray-700 dark:text-gray-300 hover:scale-102 hover:text-[#5B48EE] dark:hover:text-[#818CF8]"
         }`}
       >
         All Topics
@@ -40,10 +40,10 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
             type="button"
             id={`category-pill-${cat.slug}`}
             onClick={() => onSelectCategory(cat.slug)}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 cursor-pointer ${
               isSelected
-                ? "bg-[#5B48EE] text-white shadow-xs"
-                : "bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 border border-gray-200/80 dark:border-gray-800 hover:border-[#5B48EE]/40 hover:text-[#5B48EE] dark:hover:text-[#818CF8]"
+                ? "bg-[#5B48EE] text-white shadow-[0_4px_14px_rgba(91,72,238,0.4)] scale-105"
+                : "spatial-glass text-gray-700 dark:text-gray-300 hover:scale-102 hover:text-[#5B48EE] dark:hover:text-[#818CF8]"
             }`}
           >
             {cat.name}
