@@ -91,6 +91,10 @@ test.describe("TipTap WYSIWYG Editor (PROJ-204) E2E Tests", () => {
     const imagePopover = page.locator("#toolbar-image-popover");
     await expect(imagePopover).toBeVisible();
 
+    // Select Web URL tab
+    const urlTab = page.locator("#image-tab-url");
+    await urlTab.click();
+
     const urlInput = page.locator("#toolbar-image-url-input");
     await urlInput.fill("https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200");
 

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Editor } from "@tiptap/react";
+import { ImageUploadDropzone } from "@/components/common/ImageUploadDropzone";
 
 interface EditorToolbarProps {
   editor: Editor | null;
@@ -11,8 +12,10 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [showImageModal, setShowImageModal] = useState(false);
+  const [imageModalTab, setImageModalTab] = useState<"device" | "url">("device");
   const [imageUrl, setImageUrl] = useState("");
   const [imageAlt, setImageAlt] = useState("");
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
 
   if (!editor) return null;
 
@@ -35,12 +38,14 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
     setLinkUrl("");
   };
 
-  const handleSetImage = () => {
-    if (imageUrl.trim()) {
-      editor.chain().focus().setImage({ src: imageUrl.trim(), alt: imageAlt.trim() || "Article image" }).run();
+  const handleSetImage = (urlToUse?: string) => {
+    const finalUrl = (urlToUse || (imageModalTab === "device" ? uploadedUrl : imageUrl) || "").trim();
+    if (finalUrl) {
+      editor.chain().focus().setImage({ src: finalUrl, alt: imageAlt.trim() || "Article image" }).run();
     }
     setShowImageModal(false);
     setImageUrl("");
+    setUploadedUrl(null);
     setImageAlt("");
   };
 
@@ -321,30 +326,99 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
         {showImageModal && (
           <div
             id="toolbar-image-popover"
-            className="absolute z-20 left-0 top-10 w-80 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl space-y-2"
+            data-testid="toolbar-image-popover"
+            className="absolute z-20 left-0 top-10 w-84 p-3.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-xl space-y-3"
           >
-            <div className="space-y-2">
-              <label htmlFor="toolbar-image-url-input" className="block text-xs font-semibold text-gray-700 dark:text-gray-300">
+            {/* Mode Tabs */}
+            <div className="flex rounded-lg bg-gray-100 dark:bg-gray-800 p-0.5 text-xs font-semibold">
+              <button
+                type="button"
+                id="image-tab-device"
+                data-testid="image-tab-device"
+                onClick={() => setImageModalTab("device")}
+                className={`flex-1 py-1 px-2 rounded-md transition-all ${
+                  imageModalTab === "device"
+                    ? "bg-white dark:bg-gray-900 text-[#5B48EE] shadow-xs"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                }`}
+              >
+                Upload from Device
+              </button>
+              <button
+                type="button"
+                id="image-tab-url"
+                data-testid="image-tab-url"
+                onClick={() => setImageModalTab("url")}
+                className={`flex-1 py-1 px-2 rounded-md transition-all ${
+                  imageModalTab === "url"
+                    ? "bg-white dark:bg-gray-900 text-[#5B48EE] shadow-xs"
+                    : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                }`}
+              >
                 Image Web URL
+              </button>
+            </div>
+
+            {/* Tab 1: Upload from Device */}
+            {imageModalTab === "device" && (
+              <div className="space-y-2.5">
+                <ImageUploadDropzone
+                  compact
+                  testIdPrefix="editor-image-dropzone"
+                  onUploadSuccess={(url) => {
+                    setUploadedUrl(url);
+                  }}
+                />
+
+                {uploadedUrl && (
+                  <div
+                    id="editor-upload-success-indicator"
+                    data-testid="editor-upload-success-indicator"
+                    className="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg text-emerald-800 dark:text-emerald-300 text-xs"
+                  >
+                    <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="truncate font-mono">{uploadedUrl}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Tab 2: Web URL Input */}
+            {imageModalTab === "url" && (
+              <div className="space-y-2">
+                <label htmlFor="toolbar-image-url-input" className="block text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  Image Web URL
+                </label>
+                <input
+                  type="url"
+                  id="toolbar-image-url-input"
+                  data-testid="toolbar-image-url-input"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleSetImage();
+                    }
+                  }}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5B48EE]"
+                  autoFocus
+                />
+              </div>
+            )}
+
+            {/* Common Alt Text Input */}
+            <div className="space-y-1">
+              <label htmlFor="toolbar-image-alt-input" className="block text-[11px] font-semibold text-gray-500 dark:text-gray-400">
+                Alt Description (Accessibility)
               </label>
-              <input
-                type="url"
-                id="toolbar-image-url-input"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleSetImage();
-                  }
-                }}
-                placeholder="https://images.unsplash.com/..."
-                className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5B48EE]"
-                autoFocus
-              />
               <input
                 type="text"
                 id="toolbar-image-alt-input"
+                data-testid="toolbar-image-alt-input"
                 value={imageAlt}
                 onChange={(e) => setImageAlt(e.target.value)}
                 onKeyDown={(e) => {
@@ -353,26 +427,35 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
                     handleSetImage();
                   }
                 }}
-                placeholder="Alt description (optional)"
+                placeholder="e.g. Architecture diagram illustration"
                 className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5B48EE]"
               />
-              <div className="flex justify-end gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={() => setShowImageModal(false)}
-                  className="px-2.5 py-1 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  id="toolbar-image-save-btn"
-                  onClick={handleSetImage}
-                  className="px-3 py-1 text-xs font-semibold text-white bg-[#5B48EE] hover:bg-[#4936E3] rounded-lg"
-                >
-                  Embed Image
-                </button>
-              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex justify-end gap-2 pt-1 border-t border-gray-100 dark:border-gray-800">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowImageModal(false);
+                  setUploadedUrl(null);
+                  setImageUrl("");
+                  setImageAlt("");
+                }}
+                className="px-2.5 py-1 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                id="toolbar-image-save-btn"
+                data-testid="toolbar-image-save-btn"
+                disabled={imageModalTab === "device" ? !uploadedUrl : !imageUrl.trim()}
+                onClick={() => handleSetImage()}
+                className="px-3 py-1 text-xs font-semibold text-white bg-[#5B48EE] hover:bg-[#4936E3] disabled:opacity-40 disabled:pointer-events-none rounded-lg cursor-pointer transition-colors"
+              >
+                Embed Image
+              </button>
             </div>
           </div>
         )}

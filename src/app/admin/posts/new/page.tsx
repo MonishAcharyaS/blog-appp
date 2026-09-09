@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
+import { ImageUploadDropzone } from "@/components/common/ImageUploadDropzone";
 import { CategoryItem } from "@/types/blog";
 
 export default function NewPostPage() {
@@ -154,18 +155,71 @@ export default function NewPostPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-              Cover Image URL
-            </label>
-            <input
-              id="post-cover-image-input"
-              data-testid="post-cover-image-input"
-              type="url"
-              placeholder="https://images.unsplash.com/..."
-              value={coverImage}
-              onChange={(e) => setCoverImage(e.target.value)}
-              className="w-full text-xs sm:text-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5B48EE]"
-            />
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                Cover Image
+              </label>
+              {coverImage && (
+                <button
+                  type="button"
+                  id="cover-image-remove-btn"
+                  data-testid="cover-image-remove-btn"
+                  onClick={() => setCoverImage("")}
+                  className="text-xs text-red-500 hover:text-red-700 font-semibold cursor-pointer"
+                >
+                  Remove Image
+                </button>
+              )}
+            </div>
+
+            {/* Thumbnail Preview */}
+            {coverImage ? (
+              <div className="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-800 h-40 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  id="cover-image-preview"
+                  data-testid="cover-image-preview"
+                  src={coverImage}
+                  alt="Article Cover Preview"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setCoverImage("")}
+                    className="px-3 py-1.5 rounded-lg bg-red-600 text-white text-xs font-semibold hover:bg-red-700 cursor-pointer"
+                  >
+                    Change Image
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <ImageUploadDropzone
+                  testIdPrefix="cover-image"
+                  compact
+                  onUploadSuccess={(url) => {
+                    setCoverImage(url);
+                  }}
+                />
+                <div className="relative flex items-center justify-center">
+                  <div className="border-t border-gray-200 dark:border-gray-800 w-full" />
+                  <span className="bg-white dark:bg-gray-950 px-2 text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
+                    Or Enter URL
+                  </span>
+                  <div className="border-t border-gray-200 dark:border-gray-800 w-full" />
+                </div>
+                <input
+                  id="post-cover-image-input"
+                  data-testid="post-cover-image-input"
+                  type="url"
+                  placeholder="https://images.unsplash.com/..."
+                  value={coverImage}
+                  onChange={(e) => setCoverImage(e.target.value)}
+                  className="w-full text-xs sm:text-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5B48EE]"
+                />
+              </div>
+            )}
           </div>
         </div>
 
