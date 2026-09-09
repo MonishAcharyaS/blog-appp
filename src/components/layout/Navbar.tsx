@@ -210,6 +210,8 @@ export function Navbar() {
                   )}
 
                   <Link
+                    id="dropdown-bookmarks-link"
+                    data-testid="dropdown-bookmarks-link"
                     href="/bookmarks"
                     onClick={() => setProfileDropdownOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800/60"
@@ -375,6 +377,17 @@ export function Navbar() {
                 className="px-3 py-2 rounded-lg text-purple-600 dark:text-purple-400 font-semibold hover:bg-purple-50 dark:hover:bg-purple-950/40"
               >
                 Admin Dashboard
+              </Link>
+            )}
+            {session && (
+              <Link
+                id="mobile-nav-bookmarks-link"
+                data-testid="mobile-nav-bookmarks-link"
+                href="/bookmarks"
+                onClick={() => setMobileMenuOpen(false)}
+                className="px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              >
+                My Bookmarks
               </Link>
             )}
           </div>

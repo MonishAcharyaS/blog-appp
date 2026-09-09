@@ -7,6 +7,7 @@ import { ArticleHeader } from "@/components/article/ArticleHeader";
 import { AuthorBioCard } from "@/components/article/AuthorBioCard";
 import { SocialShareButtons } from "@/components/article/SocialShareButtons";
 import { LikeButton } from "@/components/article/LikeButton";
+import { BookmarkButton } from "@/components/article/BookmarkButton";
 import { CommentSection } from "@/components/comments/CommentSection";
 import { sanitizeHtml } from "@/lib/sanitize";
 import { calculateReadingTime } from "@/lib/readingTime";
@@ -119,18 +120,30 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
     }
   }
 
-  // Check if current user has liked this post
+  // Check if current user has liked or bookmarked this post
   let initialIsLiked = false;
+  let initialIsBookmarked = false;
   if (session?.user?.id) {
-    const existingLike = await prisma.like.findUnique({
-      where: {
-        postId_userId: {
-          postId: post.id,
-          userId: session.user.id,
+    const [existingLike, existingBookmark] = await Promise.all([
+      prisma.like.findUnique({
+        where: {
+          postId_userId: {
+            postId: post.id,
+            userId: session.user.id,
+          },
         },
-      },
-    });
+      }),
+      prisma.bookmark.findUnique({
+        where: {
+          postId_userId: {
+            postId: post.id,
+            userId: session.user.id,
+          },
+        },
+      }),
+    ]);
     initialIsLiked = !!existingLike;
+    initialIsBookmarked = !!existingBookmark;
   }
 
   // 3. Atomically increment view count
@@ -158,7 +171,11 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
   return (
     <article className="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-12">
       {/* Article Header */}
-      <ArticleHeader post={blogPost} initialIsLiked={initialIsLiked} />
+      <ArticleHeader
+        post={blogPost}
+        initialIsLiked={initialIsLiked}
+        initialIsBookmarked={initialIsBookmarked}
+      />
 
       {/* Article Body Typography */}
       <div
@@ -188,7 +205,7 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
       {/* Bottom Share & Author Bio */}
       <div className="space-y-8 pt-6 border-t border-gray-100 dark:border-gray-800">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <h2 className="text-base font-bold text-gray-900 dark:text-white">
               Enjoyed this article?
             </h2>
@@ -196,6 +213,11 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
               postId={blogPost.id}
               initialLikesCount={blogPost._count?.likes ?? 0}
               initialIsLiked={initialIsLiked}
+              variant="footer"
+            />
+            <BookmarkButton
+              postId={blogPost.id}
+              initialIsBookmarked={initialIsBookmarked}
               variant="footer"
             />
           </div>

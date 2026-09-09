@@ -3,13 +3,19 @@ import Link from "next/link";
 import { BlogPost } from "@/types/blog";
 import { SocialShareButtons } from "./SocialShareButtons";
 import { LikeButton } from "./LikeButton";
+import { BookmarkButton } from "./BookmarkButton";
 
 interface ArticleHeaderProps {
   post: BlogPost;
   initialIsLiked?: boolean;
+  initialIsBookmarked?: boolean;
 }
 
-export const ArticleHeader: React.FC<ArticleHeaderProps> = ({ post, initialIsLiked = false }) => {
+export const ArticleHeader: React.FC<ArticleHeaderProps> = ({
+  post,
+  initialIsLiked = false,
+  initialIsBookmarked = false,
+}) => {
   const formattedDate = new Date(post.createdAt).toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
@@ -103,12 +109,17 @@ export const ArticleHeader: React.FC<ArticleHeaderProps> = ({ post, initialIsLik
           </div>
         </div>
 
-        {/* Actions: Likes & Social Share */}
-        <div className="flex items-center gap-3">
+        {/* Actions: Likes, Bookmarks & Social Share */}
+        <div className="flex items-center gap-2.5">
           <LikeButton
             postId={post.id}
             initialLikesCount={likesCount}
             initialIsLiked={initialIsLiked}
+            variant="header"
+          />
+          <BookmarkButton
+            postId={post.id}
+            initialIsBookmarked={initialIsBookmarked}
             variant="header"
           />
           <SocialShareButtons title={post.title} slug={post.slug} />
