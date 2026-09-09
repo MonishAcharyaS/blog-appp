@@ -2,11 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 
 export function Navbar() {
   const { data: session, status } = useSession();
+  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -34,6 +36,10 @@ export function Navbar() {
     ? session.user.name.charAt(0).toUpperCase()
     : "U";
 
+  const isFeedActive = pathname === "/";
+  const isExploreActive = pathname.startsWith("/explore");
+  const isTrendingActive = pathname.startsWith("/trending");
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-gray-200/80 dark:border-gray-800/80 bg-white/85 dark:bg-gray-900/85 backdrop-blur-md transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-17 flex items-center justify-between gap-4">
@@ -52,20 +58,35 @@ export function Navbar() {
 
           <nav className="hidden md:flex items-center gap-1 text-sm font-medium">
             <Link
+              id="navbar-feed-link"
               href="/"
-              className="px-3 py-1.5 rounded-lg text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors"
+              className={`px-3 py-1.5 rounded-lg transition-colors ${
+                isFeedActive
+                  ? "bg-[#5B48EE]/10 text-[#5B48EE] dark:text-[#818CF8] font-semibold"
+                  : "text-gray-700 dark:text-gray-300 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60"
+              }`}
             >
               Feed
             </Link>
             <Link
+              id="navbar-explore-link"
               href="/explore"
-              className="px-3 py-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors"
+              className={`px-3 py-1.5 rounded-lg transition-colors ${
+                isExploreActive
+                  ? "bg-[#5B48EE]/10 text-[#5B48EE] dark:text-[#818CF8] font-semibold"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60"
+              }`}
             >
               Explore
             </Link>
             <Link
+              id="navbar-trending-link"
               href="/trending"
-              className="px-3 py-1.5 rounded-lg text-gray-600 dark:text-gray-400 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors"
+              className={`px-3 py-1.5 rounded-lg transition-colors ${
+                isTrendingActive
+                  ? "bg-[#5B48EE]/10 text-[#5B48EE] dark:text-[#818CF8] font-semibold"
+                  : "text-gray-600 dark:text-gray-400 hover:text-gray-950 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800/60"
+              }`}
             >
               Trending
             </Link>
@@ -311,23 +332,38 @@ export function Navbar() {
 
           <div className="flex flex-col space-y-1 text-sm font-medium">
             <Link
+              id="mobile-nav-feed-link"
               href="/"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className={`px-3 py-2 rounded-lg transition-colors ${
+                isFeedActive
+                  ? "bg-[#5B48EE]/10 text-[#5B48EE] dark:text-[#818CF8] font-semibold"
+                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              }`}
             >
               Feed
             </Link>
             <Link
+              id="mobile-nav-explore-link"
               href="/explore"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className={`px-3 py-2 rounded-lg transition-colors ${
+                isExploreActive
+                  ? "bg-[#5B48EE]/10 text-[#5B48EE] dark:text-[#818CF8] font-semibold"
+                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              }`}
             >
               Explore
             </Link>
             <Link
+              id="mobile-nav-trending-link"
               href="/trending"
               onClick={() => setMobileMenuOpen(false)}
-              className="px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              className={`px-3 py-2 rounded-lg transition-colors ${
+                isTrendingActive
+                  ? "bg-[#5B48EE]/10 text-[#5B48EE] dark:text-[#818CF8] font-semibold"
+                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+              }`}
             >
               Trending
             </Link>
