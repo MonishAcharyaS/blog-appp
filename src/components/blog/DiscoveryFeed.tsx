@@ -10,18 +10,27 @@ import { BlogCard } from "./BlogCard";
 interface DiscoveryFeedProps {
   initialPosts: BlogPost[];
   categories: CategoryItem[];
+  initialSearchQuery?: string;
 }
 
 export const DiscoveryFeed: React.FC<DiscoveryFeedProps> = ({
   initialPosts,
   categories,
+  initialSearchQuery = "",
 }) => {
   const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSort, setSelectedSort] = useState<SortOption>("latest");
   const [isLoading, setIsLoading] = useState(false);
   const isFirstRender = useRef(true);
+
+  // Sync external initialSearchQuery changes (e.g. navigation via navbar)
+  useEffect(() => {
+    if (initialSearchQuery !== undefined) {
+      setSearchQuery(initialSearchQuery);
+    }
+  }, [initialSearchQuery]);
 
   const fetchFilteredPosts = useCallback(
     async (search: string, category: string, sort: SortOption) => {
@@ -168,7 +177,8 @@ export const DiscoveryFeed: React.FC<DiscoveryFeedProps> = ({
           {hasActiveFilters && (
             <button
               type="button"
-              id="reset-discovery-filters-btn"
+              id="discovery-reset-filters-btn"
+              data-testid="discovery-reset-filters-btn"
               onClick={handleResetFilters}
               className="px-5 py-2.5 rounded-xl font-semibold text-xs text-white bg-[#5B48EE] hover:bg-[#4936E3] transition-all cursor-pointer shadow-xs"
             >

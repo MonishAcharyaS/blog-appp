@@ -2,16 +2,65 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 
 export function Navbar() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Search input state & ref
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Sync search input with URL search param when on /explore without bailing out static pre-renders
+  useEffect(() => {
+    if (pathname.startsWith("/explore")) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentParam = urlParams.get("search") || "";
+      setSearchQuery(currentParam);
+    }
+  }, [pathname]);
+
+  // Global keyboard shortcut for Cmd+K / Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+        searchInputRef.current?.select();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Handle search submission
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = searchQuery.trim();
+    if (!trimmed) {
+      if (pathname === "/explore") {
+        router.push("/explore");
+      }
+      return;
+    }
+    router.push(`/explore?search=${encodeURIComponent(trimmed)}`);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    if (pathname.startsWith("/explore")) {
+      router.push("/explore");
+    }
+    searchInputRef.current?.focus();
+  };
 
   // Close profile dropdown on outside click
   useEffect(() => {
@@ -94,9 +143,19 @@ export function Navbar() {
         </div>
 
         {/* Search Bar */}
-        <div className="hidden lg:flex items-center flex-1 max-w-sm mx-4">
+        <form
+          id="navbar-search-form"
+          onSubmit={handleSearchSubmit}
+          className="hidden lg:flex items-center flex-1 max-w-sm mx-4"
+        >
           <div className="relative w-full">
-            <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400 dark:text-gray-500">
+            <button
+              type="submit"
+              id="navbar-search-submit-btn"
+              data-testid="navbar-search-submit-btn"
+              aria-label="Submit search"
+              className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400 hover:text-[#5B48EE] dark:text-gray-500 dark:hover:text-[#818CF8] cursor-pointer transition-colors"
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -110,20 +169,48 @@ export function Navbar() {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-            </div>
+            </button>
             <input
+              ref={searchInputRef}
               id="navbar-search-input"
+              data-testid="navbar-search-input"
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  searchInputRef.current?.blur();
+                }
+              }}
               placeholder="Search blogs, authors, topics..."
-              className="w-full pl-9 pr-12 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-800/60 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#5B48EE] focus:bg-white dark:focus:bg-gray-800 transition-all"
+              className="w-full pl-9 pr-14 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/70 dark:bg-gray-800/60 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-[#5B48EE] focus:bg-white dark:focus:bg-gray-800 transition-all"
             />
-            <div className="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
-              <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded">
-                ⌘K
-              </kbd>
+            <div className="absolute inset-y-0 right-0 pr-2 flex items-center gap-1">
+              {searchQuery ? (
+                <button
+                  type="button"
+                  id="navbar-search-clear-btn"
+                  data-testid="navbar-search-clear-btn"
+                  onClick={handleClearSearch}
+                  aria-label="Clear search query"
+                  className="p-1 rounded-md text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                >
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+              ) : (
+                <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded pointer-events-none">
+                  ⌘K
+                </kbd>
+              )}
             </div>
           </div>
-        </div>
+        </form>
 
         {/* Right Actions Cluster */}
         <div className="flex items-center gap-3">
@@ -309,13 +396,31 @@ export function Navbar() {
           className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-4 space-y-3 transition-colors duration-200"
         >
           {/* Mobile Search */}
-          <div className="relative">
+          <form
+            id="mobile-navbar-search-form"
+            onSubmit={(e) => {
+              handleSearchSubmit(e);
+              setMobileMenuOpen(false);
+            }}
+            className="relative"
+          >
             <input
+              ref={mobileSearchInputRef}
+              id="mobile-navbar-search-input"
+              data-testid="mobile-navbar-search-input"
               type="text"
-              placeholder="Search..."
-              className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5B48EE]"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search blogs, authors, topics..."
+              className="w-full pl-9 pr-8 py-2 text-xs rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5B48EE]"
             />
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+            <button
+              type="submit"
+              id="mobile-navbar-search-submit-btn"
+              data-testid="mobile-navbar-search-submit-btn"
+              aria-label="Submit mobile search"
+              className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 hover:text-[#5B48EE] cursor-pointer"
+            >
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -329,8 +434,26 @@ export function Navbar() {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
-            </div>
-          </div>
+            </button>
+            {searchQuery && (
+              <button
+                type="button"
+                id="mobile-navbar-search-clear-btn"
+                data-testid="mobile-navbar-search-clear-btn"
+                onClick={handleClearSearch}
+                aria-label="Clear mobile search"
+                className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            )}
+          </form>
 
           <div className="flex flex-col space-y-1 text-sm font-medium">
             <Link

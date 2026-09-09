@@ -17,10 +17,37 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function ExplorePage() {
+interface ExplorePageProps {
+  searchParams?: Promise<{
+    search?: string;
+    category?: string;
+    sort?: string;
+  }>;
+}
+
+export default async function ExplorePage({ searchParams }: ExplorePageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const initialSearch = (resolvedSearchParams.search || "").trim();
+  const initialCategory = (resolvedSearchParams.category || "").trim();
+
+  // Build where clause
+  const where: any = { published: true };
+  if (initialSearch) {
+    where.OR = [
+      { title: { contains: initialSearch, mode: "insensitive" } },
+      { excerpt: { contains: initialSearch, mode: "insensitive" } },
+      { content: { contains: initialSearch, mode: "insensitive" } },
+    ];
+  }
+  if (initialCategory && initialCategory !== "all") {
+    where.category = {
+      slug: initialCategory,
+    };
+  }
+
   // Fetch initial published posts with full relational data
   const rawInitialPosts = await prisma.post.findMany({
-    where: { published: true },
+    where,
     orderBy: { createdAt: "desc" },
     take: 12,
     include: {
@@ -112,7 +139,11 @@ export default async function ExplorePage() {
       </div>
 
       {/* Interactive Discovery Feed: Category Pills, Search, Sorting, Grid */}
-      <DiscoveryFeed initialPosts={initialPosts} categories={categories} />
+      <DiscoveryFeed
+        initialPosts={initialPosts}
+        categories={categories}
+        initialSearchQuery={initialSearch}
+      />
     </div>
   );
 }
