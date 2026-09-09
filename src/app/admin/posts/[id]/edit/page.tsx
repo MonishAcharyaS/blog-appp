@@ -16,6 +16,7 @@ export default function EditPostPage() {
   const [content, setContent] = useState("");
   const [coverImage, setCoverImage] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [customCategoryName, setCustomCategoryName] = useState("");
   const [published, setPublished] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
@@ -61,22 +62,39 @@ export default function EditPostPage() {
       return;
     }
 
+    if (categoryId === "OTHER") {
+      const trimmedCustom = customCategoryName.trim();
+      if (!trimmedCustom) {
+        setErrorMessage("Please enter a name for the new custom category.");
+        return;
+      }
+    }
+
     try {
       setIsSaving(true);
       setErrorMessage("");
 
+      const payload: any = {
+        title: trimmedTitle,
+        excerpt: excerpt.trim() || trimmedTitle,
+        content,
+        coverImage: coverImage.trim() || null,
+        published,
+        isFeatured,
+      };
+
+      if (categoryId === "OTHER") {
+        payload.newCategoryName = customCategoryName.trim();
+      } else if (categoryId) {
+        payload.categoryId = categoryId;
+      } else {
+        payload.categoryId = null;
+      }
+
       const res = await fetch(`/api/posts/${postId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: trimmedTitle,
-          excerpt: excerpt.trim() || trimmedTitle,
-          content,
-          coverImage: coverImage.trim() || null,
-          categoryId: categoryId || null,
-          published,
-          isFeatured,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -167,7 +185,12 @@ export default function EditPostPage() {
               id="post-category-select"
               data-testid="post-category-select"
               value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
+              onChange={(e) => {
+                setCategoryId(e.target.value);
+                if (e.target.value !== "OTHER") {
+                  setCustomCategoryName("");
+                }
+              }}
               className="w-full text-xs sm:text-sm rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-3.5 py-2.5 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#5B48EE]"
             >
               <option value="">Select Category...</option>
@@ -176,7 +199,34 @@ export default function EditPostPage() {
                   {cat.name}
                 </option>
               ))}
+              <option value="OTHER" className="font-semibold text-[#5B48EE]">
+                + Add Other / New Category...
+              </option>
             </select>
+
+            {/* Custom Category Inline Input */}
+            {categoryId === "OTHER" && (
+              <div className="pt-2 space-y-1.5 animate-fadeIn">
+                <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400">
+                  New Category Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  id="post-custom-category-input"
+                  data-testid="post-custom-category-input"
+                  type="text"
+                  placeholder="e.g., DevOps & Cloud Architecture"
+                  value={customCategoryName}
+                  onChange={(e) => {
+                    setCustomCategoryName(e.target.value);
+                    if (errorMessage) setErrorMessage("");
+                  }}
+                  className="w-full text-xs sm:text-sm rounded-xl border border-indigo-300 dark:border-indigo-800/80 bg-indigo-50/30 dark:bg-indigo-950/20 px-3.5 py-2 text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#5B48EE]"
+                />
+                <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                  This new category will be created and added to the platform filters automatically.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">

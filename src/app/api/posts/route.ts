@@ -124,9 +124,38 @@ export async function POST(request: NextRequest) {
     const content = body.content || "";
     const excerpt = (body.excerpt || "").trim();
     const coverImage = body.coverImage || null;
-    const categoryId = body.categoryId || null;
+    let categoryId = body.categoryId || null;
+    const newCategoryName = (body.newCategoryName || "").trim();
     const published = !!body.published;
     const isFeatured = !!body.isFeatured;
+
+    // Handle inline custom category creation or resolution
+    if (newCategoryName) {
+      let catSlug = newCategoryName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      if (!catSlug) catSlug = `category-${Date.now().toString(36)}`;
+
+      let category = await prisma.category.findFirst({
+        where: {
+          OR: [
+            { name: { equals: newCategoryName, mode: "insensitive" } },
+            { slug: catSlug },
+          ],
+        },
+      });
+
+      if (!category) {
+        category = await prisma.category.create({
+          data: {
+            name: newCategoryName,
+            slug: catSlug,
+          },
+        });
+      }
+      categoryId = category.id;
+    }
 
     if (!title) {
       return NextResponse.json(

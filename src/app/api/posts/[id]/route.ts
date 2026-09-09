@@ -87,7 +87,33 @@ export async function PATCH(req: NextRequest, context: RouteContext) {
       updateData.coverImage = body.coverImage;
     }
 
-    if (body.categoryId !== undefined) {
+    if (body.newCategoryName) {
+      const newCategoryName = String(body.newCategoryName).trim();
+      let catSlug = newCategoryName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+      if (!catSlug) catSlug = `category-${Date.now().toString(36)}`;
+
+      let category = await prisma.category.findFirst({
+        where: {
+          OR: [
+            { name: { equals: newCategoryName, mode: "insensitive" } },
+            { slug: catSlug },
+          ],
+        },
+      });
+
+      if (!category) {
+        category = await prisma.category.create({
+          data: {
+            name: newCategoryName,
+            slug: catSlug,
+          },
+        });
+      }
+      updateData.categoryId = category.id;
+    } else if (body.categoryId !== undefined) {
       updateData.categoryId = body.categoryId || null;
     }
 
