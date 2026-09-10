@@ -46,7 +46,7 @@ async function runRegisterUnitTests() {
   assert.strictEqual(newUser.role, "READER", "New user must default to READER role");
   assert.strictEqual(newUser.isBanned, false, "New user must not be banned");
   assert.strictEqual(
-    await bcrypt.compare(validPassword, newUser.passwordHash),
+    await bcrypt.compare(validPassword, newUser.passwordHash || ""),
     true,
     "Password hash must match original password"
   );

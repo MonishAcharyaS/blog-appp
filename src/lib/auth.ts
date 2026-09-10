@@ -1,5 +1,8 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import GithubProvider from "next-auth/providers/github";
+import LinkedInProvider from "next-auth/providers/linkedin";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
@@ -8,6 +11,21 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "google-client-id-placeholder",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "google-client-secret-placeholder",
+      allowDangerousEmailAccountLinking: true,
+    }),
+    GithubProvider({
+      clientId: process.env.GITHUB_ID || "github-client-id-placeholder",
+      clientSecret: process.env.GITHUB_SECRET || "github-client-secret-placeholder",
+      allowDangerousEmailAccountLinking: true,
+    }),
+    LinkedInProvider({
+      clientId: process.env.LINKEDIN_CLIENT_ID || "linkedin-client-id-placeholder",
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET || "linkedin-client-secret-placeholder",
+      allowDangerousEmailAccountLinking: true,
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -24,7 +42,7 @@ export const authOptions: NextAuthOptions = {
           where: { email },
         });
 
-        if (!user) {
+        if (!user || !user.passwordHash) {
           throw new Error("Invalid credentials");
         }
 
@@ -53,6 +71,55 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      // For OAuth providers, verify or provision user in PostgreSQL
+      if (account && account.provider !== "credentials") {
+        if (!user.email) return false;
+
+        const email = user.email.toLowerCase().trim();
+        try {
+          let dbUser = await prisma.user.findUnique({
+            where: { email },
+          });
+
+          if (dbUser) {
+            // Check banned status
+            if (dbUser.isBanned) {
+              return "/login?error=AccessDenied";
+            }
+
+            // Sync user avatar or name if missing
+            if (!dbUser.image && user.image) {
+              await prisma.user.update({
+                where: { id: dbUser.id },
+                data: { image: user.image },
+              });
+            }
+          } else {
+            // Provision new OAuth user
+            dbUser = await prisma.user.create({
+              data: {
+                email,
+                name: user.name || email.split("@")[0],
+                image: user.image || null,
+                role: "READER",
+                isBanned: false,
+              },
+            });
+          }
+
+          // Attach database ID and role to user object so jwt callback receives them
+          user.id = dbUser.id;
+          (user as any).role = dbUser.role;
+          (user as any).isBanned = dbUser.isBanned;
+          return true;
+        } catch (err) {
+          console.error("Error handling OAuth sign in:", err);
+          return false;
+        }
+      }
+      return true;
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;

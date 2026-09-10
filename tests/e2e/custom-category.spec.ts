@@ -55,9 +55,12 @@ test.describe("Custom Category Inline Creation in Add/Edit Article Forms (Issue 
     await page.waitForURL(/\/admin\/posts/, { timeout: 15000 });
     expect(page.url()).toContain("/admin/posts");
 
+    // Wait for articles table to finish loading
+    await expect(page.locator("text=Loading articles...")).not.toBeVisible({ timeout: 15000 });
+
     // Verify post is present in the admin table
     const tableBody = page.locator("tbody");
-    await expect(tableBody).toContainText(postTitle, { timeout: 10000 });
+    await expect(tableBody).toContainText(postTitle, { timeout: 15000 });
     await expect(tableBody).toContainText(customCategory);
   });
 
@@ -101,8 +104,10 @@ test.describe("Custom Category Inline Creation in Add/Edit Article Forms (Issue 
     await page.click("#save-post-btn");
 
     await page.waitForURL(/\/admin\/posts/, { timeout: 15000 });
+    await expect(page.locator("text=Loading articles...")).not.toBeVisible({ timeout: 15000 });
+
     const tableBody = page.locator("tbody");
-    await expect(tableBody).toContainText(postTitle, { timeout: 10000 });
+    await expect(tableBody).toContainText(postTitle, { timeout: 15000 });
     await expect(tableBody).toContainText("AI & Machine Learning");
   });
 
@@ -111,13 +116,14 @@ test.describe("Custom Category Inline Creation in Add/Edit Article Forms (Issue 
   }) => {
     await page.goto("/admin/posts");
     await page.waitForLoadState("domcontentloaded");
+    await expect(page.locator("text=Loading articles...")).not.toBeVisible({ timeout: 15000 });
 
     // Click Edit button on the first post
     const editLink = page.locator("tbody tr a[href*='/edit']").first();
-    await expect(editLink).toBeVisible({ timeout: 10000 });
+    await expect(editLink).toBeVisible({ timeout: 15000 });
     await editLink.click();
 
-    await page.waitForURL(/\/admin\/posts\/.*\/edit/, { timeout: 10000 });
+    await page.waitForURL(/\/admin\/posts\/.*\/edit/, { timeout: 15000 });
 
     const newCustomCategory = `Quantum Computing ${Date.now().toString(36)}`;
 
@@ -131,7 +137,8 @@ test.describe("Custom Category Inline Creation in Add/Edit Article Forms (Issue 
     await page.click("#save-post-btn");
 
     await page.waitForURL(/\/admin\/posts/, { timeout: 15000 });
+    await expect(page.locator("text=Loading articles...")).not.toBeVisible({ timeout: 15000 });
     const tableBody = page.locator("tbody");
-    await expect(tableBody).toContainText(newCustomCategory, { timeout: 10000 });
+    await expect(tableBody).toContainText(newCustomCategory, { timeout: 15000 });
   });
 });

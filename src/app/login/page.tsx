@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { SocialAuthButtons } from "@/components/auth/SocialAuthButtons";
 
 function LoginForm() {
   const router = useRouter();
@@ -16,9 +17,21 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(
-    authError === "CredentialsSignin" ? "Invalid email or password" : null
-  );
+
+  const getInitialErrorMessage = () => {
+    if (authError === "CredentialsSignin") return "Invalid email or password";
+    if (authError === "AccessDenied") return "Your account has been suspended. Please contact support.";
+    if (authError === "OAuthSignin" || authError === "OAuthCallback") {
+      return "Could not authenticate with social provider. Please try again.";
+    }
+    return null;
+  };
+
+  const [errorMessage, setErrorMessage] = useState<string | null>(getInitialErrorMessage());
+
+  useEffect(() => {
+    setErrorMessage(getInitialErrorMessage());
+  }, [authError]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -258,6 +271,9 @@ function LoginForm() {
           )}
         </button>
       </form>
+
+      {/* Social OAuth Buttons (Google, GitHub, LinkedIn) */}
+      <SocialAuthButtons callbackUrl={callbackUrl} disabled={loading} />
 
       {/* Card Footer / Switch to Register */}
       <div className="mt-6 pt-5 border-t border-gray-100 dark:border-gray-800 text-center text-xs text-gray-500 dark:text-gray-400">

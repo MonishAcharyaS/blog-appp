@@ -18,7 +18,7 @@ async function runSeedTests() {
       throw new Error(`FAILED: Admin role is ${admin.role}, expected 'ADMIN'!`);
     }
 
-    const isPasswordValid = await bcrypt.compare("Admin123!", admin.passwordHash);
+    const isPasswordValid = await bcrypt.compare("Admin123!", admin.passwordHash || "");
     if (!isPasswordValid) {
       throw new Error("FAILED: Bcrypt compare failed for Admin123!! Hash is invalid.");
     }
@@ -32,7 +32,7 @@ async function runSeedTests() {
       throw new Error(`FAILED: Expected at least 2 readers, found ${readers.length}!`);
     }
     for (const reader of readers) {
-      const isReaderPasswordValid = await bcrypt.compare("Reader123!", reader.passwordHash);
+      const isReaderPasswordValid = await bcrypt.compare("Reader123!", reader.passwordHash || "");
       if (!isReaderPasswordValid) {
         throw new Error(`FAILED: Reader ${reader.email} has invalid password hash.`);
       }

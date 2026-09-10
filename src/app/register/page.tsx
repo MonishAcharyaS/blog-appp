@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { SocialAuthButtons } from "@/components/auth/SocialAuthButtons";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -372,6 +373,9 @@ export default function RegisterPage() {
               )}
             </button>
           </form>
+
+          {/* Social OAuth Buttons (Google, GitHub, LinkedIn) */}
+          <SocialAuthButtons callbackUrl="/" disabled={loading} />
 
           {/* Card Footer / Switch to Login */}
           <div className="mt-6 pt-5 border-t border-gray-100 dark:border-gray-800 text-center text-xs text-gray-500 dark:text-gray-400">
