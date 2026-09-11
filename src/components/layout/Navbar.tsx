@@ -18,6 +18,15 @@ export function Navbar() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isMac, setIsMac] = useState(false);
+
+  // Platform detection for shortcut symbol (Cmd+K on Mac, Ctrl+K on Windows/Linux)
+  useEffect(() => {
+    if (typeof window !== "undefined" && typeof navigator !== "undefined") {
+      const platform = (navigator as any)?.userAgentData?.platform || navigator?.platform || "";
+      setIsMac(/mac|iphone|ipad|ipod/i.test(platform));
+    }
+  }, []);
 
   // Sync search input with URL search param when on /explore without bailing out static pre-renders
   useEffect(() => {
@@ -28,13 +37,18 @@ export function Navbar() {
     }
   }, [pathname]);
 
+  // Focus and select search bar
+  const handleFocusSearch = () => {
+    searchInputRef.current?.focus();
+    searchInputRef.current?.select();
+  };
+
   // Global keyboard shortcut for Cmd+K / Ctrl+K
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        searchInputRef.current?.focus();
-        searchInputRef.current?.select();
+        handleFocusSearch();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -204,9 +218,19 @@ export function Navbar() {
                   </svg>
                 </button>
               ) : (
-                <kbd className="px-1.5 py-0.5 text-[10px] font-mono text-gray-400 dark:text-gray-500 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded pointer-events-none">
-                  ⌘K
-                </kbd>
+                <button
+                  type="button"
+                  id="navbar-search-shortcut-btn"
+                  data-testid="navbar-search-shortcut-btn"
+                  onClick={handleFocusSearch}
+                  aria-label={`Focus search input (Shortcut: ${isMac ? "Cmd+K" : "Ctrl+K"})`}
+                  title={`Focus search (${isMac ? "⌘K" : "Ctrl+K"})`}
+                  className="px-1.5 py-0.5 text-[10px] font-mono font-medium text-gray-400 hover:text-gray-700 dark:text-gray-500 dark:hover:text-gray-200 bg-white hover:bg-gray-100 dark:bg-gray-900 dark:hover:bg-gray-800 border border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700 rounded transition-all cursor-pointer select-none active:scale-95 shadow-2xs"
+                >
+                  <span id="navbar-search-shortcut-badge" data-testid="navbar-search-shortcut-badge">
+                    {isMac ? "⌘K" : "Ctrl K"}
+                  </span>
+                </button>
               )}
             </div>
           </div>
