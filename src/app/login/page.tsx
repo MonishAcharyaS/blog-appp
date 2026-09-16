@@ -21,7 +21,16 @@ function LoginForm() {
   const getInitialErrorMessage = () => {
     if (authError === "CredentialsSignin") return "Invalid email or password";
     if (authError === "AccessDenied") return "Your account has been suspended. Please contact support.";
-    if (authError === "OAuthSignin" || authError === "OAuthCallback") {
+    if (authError === "OAuthSignin") {
+      return "Could not initialize social sign-in. Please try again.";
+    }
+    if (authError === "OAuthCallback" || authError === "Callback") {
+      return "Social authorization was cancelled or encountered an error. Please try again.";
+    }
+    if (authError === "OAuthAccountNotLinked") {
+      return "An account with this email already exists under a different sign-in method.";
+    }
+    if (authError) {
       return "Could not authenticate with social provider. Please try again.";
     }
     return null;

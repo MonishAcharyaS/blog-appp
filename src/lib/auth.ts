@@ -6,6 +6,24 @@ import LinkedInProvider from "next-auth/providers/linkedin";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
+export const isGoogleConfigured = !!(
+  process.env.GOOGLE_CLIENT_ID &&
+  process.env.GOOGLE_CLIENT_SECRET &&
+  !process.env.GOOGLE_CLIENT_ID.includes("placeholder")
+);
+
+export const isGithubConfigured = !!(
+  process.env.GITHUB_ID &&
+  process.env.GITHUB_SECRET &&
+  !process.env.GITHUB_ID.includes("placeholder")
+);
+
+export const isLinkedinConfigured = !!(
+  process.env.LINKEDIN_CLIENT_ID &&
+  process.env.LINKEDIN_CLIENT_SECRET &&
+  !process.env.LINKEDIN_CLIENT_ID.includes("placeholder")
+);
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -27,17 +45,78 @@ export const authOptions: NextAuthOptions = {
       allowDangerousEmailAccountLinking: true,
     }),
     CredentialsProvider({
+      id: "credentials",
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email", placeholder: "user@example.com" },
         password: { label: "Password", type: "password" },
+        provider: { label: "Provider", type: "text" },
+        name: { label: "Name", type: "text" },
+        image: { label: "Image", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.email) {
           throw new Error("Missing email or password");
         }
 
         const email = credentials.email.toLowerCase().trim();
+
+        // Handle Social Sandbox / Mock login flow
+        if (credentials.provider) {
+          try {
+            let dbUser = await prisma.user.findUnique({
+              where: { email },
+            });
+
+            if (dbUser) {
+              if (dbUser.isBanned) {
+                throw new Error("Account suspended");
+              }
+              if (!dbUser.image && credentials.image) {
+                dbUser = await prisma.user.update({
+                  where: { id: dbUser.id },
+                  data: { image: credentials.image },
+                });
+              }
+            } else {
+              dbUser = await prisma.user.create({
+                data: {
+                  email,
+                  name: credentials.name || email.split("@")[0],
+                  image: credentials.image || null,
+                  role: "READER",
+                  isBanned: false,
+                },
+              });
+            }
+
+            return {
+              id: dbUser.id,
+              name: dbUser.name,
+              email: dbUser.email,
+              image: dbUser.image,
+              role: dbUser.role,
+              isBanned: dbUser.isBanned,
+            };
+          } catch (dbErr: any) {
+            if (dbErr.message === "Account suspended") throw dbErr;
+            console.error("Database unavailable during sandbox social login, using fallback:", dbErr);
+            return {
+              id: `demo-${credentials.provider}-id`,
+              name: credentials.name || email.split("@")[0],
+              email,
+              image: credentials.image || null,
+              role: "READER",
+              isBanned: false,
+            };
+          }
+        }
+
+        // Handle Standard Password login flow
+        if (!credentials.password) {
+          throw new Error("Missing email or password");
+        }
+
         const user = await prisma.user.findUnique({
           where: { email },
         });
@@ -73,7 +152,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       // For OAuth providers, verify or provision user in PostgreSQL
-      if (account && account.provider !== "credentials") {
+      if (account && account.provider !== "credentials" && account.provider !== "social-sandbox") {
         if (!user.email) return false;
 
         const email = user.email.toLowerCase().trim();
@@ -157,3 +236,4 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
+

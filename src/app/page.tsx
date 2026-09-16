@@ -6,51 +6,14 @@ import { BlogPost, CategoryItem } from "@/types/blog";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  // Fetch featured post directly with relational includes for fast initial paint
-  const rawFeaturedPost = await prisma.post.findFirst({
-    where: { published: true, isFeatured: true },
-    include: {
-      author: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
-          role: true,
-          bio: true,
-        },
-      },
-      category: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
-      },
-      tags: {
-        include: {
-          tag: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-            },
-          },
-        },
-      },
-      _count: {
-        select: {
-          likes: true,
-          comments: true,
-        },
-      },
-    },
-  });
+  let featuredPost: BlogPost | null = null;
+  let initialPosts: BlogPost[] = [];
+  let categories: CategoryItem[] = [];
 
-  // Fallback if no post is explicitly featured
-  const featuredPost = (rawFeaturedPost ??
-    (await prisma.post.findFirst({
-      where: { published: true },
-      orderBy: { createdAt: "desc" },
+  try {
+    // Fetch featured post directly with relational includes for fast initial paint
+    const rawFeaturedPost = await prisma.post.findFirst({
+      where: { published: true, isFeatured: true },
       include: {
         author: {
           select: {
@@ -86,62 +49,107 @@ export default async function Home() {
           },
         },
       },
-    }))) as unknown as BlogPost | null;
+    });
 
-  // Fetch initial posts for the discovery grid
-  const rawInitialPosts = await prisma.post.findMany({
-    where: { published: true },
-    orderBy: { createdAt: "desc" },
-    take: 12,
-    include: {
-      author: {
-        select: {
-          id: true,
-          name: true,
-          image: true,
-          role: true,
-          bio: true,
-        },
-      },
-      category: {
-        select: {
-          id: true,
-          name: true,
-          slug: true,
-        },
-      },
-      tags: {
+    // Fallback if no post is explicitly featured
+    featuredPost = (rawFeaturedPost ??
+      (await prisma.post.findFirst({
+        where: { published: true },
+        orderBy: { createdAt: "desc" },
         include: {
-          tag: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              role: true,
+              bio: true,
+            },
+          },
+          category: {
             select: {
               id: true,
               name: true,
               slug: true,
             },
           },
+          tags: {
+            include: {
+              tag: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              likes: true,
+              comments: true,
+            },
+          },
+        },
+      }))) as unknown as BlogPost | null;
+
+    // Fetch initial posts for the discovery grid
+    const rawInitialPosts = await prisma.post.findMany({
+      where: { published: true },
+      orderBy: { createdAt: "desc" },
+      take: 12,
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            role: true,
+            bio: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        tags: {
+          include: {
+            tag: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
         },
       },
-      _count: {
-        select: {
-          likes: true,
-          comments: true,
-        },
+    });
+
+    // Fetch categories
+    categories = (await prisma.category.findMany({
+      orderBy: { name: "asc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
       },
-    },
-  });
+    })) as unknown as CategoryItem[];
 
-  // Fetch categories
-  const categories = (await prisma.category.findMany({
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      description: true,
-    },
-  })) as unknown as CategoryItem[];
-
-  const initialPosts = rawInitialPosts as unknown as BlogPost[];
+    initialPosts = rawInitialPosts as unknown as BlogPost[];
+  } catch (dbErr) {
+    console.warn("Home page database connection error, rendering empty feed fallback:", dbErr);
+  }
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-12">

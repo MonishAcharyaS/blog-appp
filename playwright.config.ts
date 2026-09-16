@@ -16,6 +16,9 @@ export default defineConfig({
     url: "http://localhost:3000/api/health",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
+    env: {
+      NEXTAUTH_URL: "http://localhost:3000",
+    },
   },
   projects: [
     {

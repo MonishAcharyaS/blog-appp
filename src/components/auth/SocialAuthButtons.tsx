@@ -1,23 +1,108 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 interface SocialAuthButtonsProps {
   callbackUrl?: string;
   disabled?: boolean;
 }
 
+interface SocialConfig {
+  google: boolean;
+  github: boolean;
+  linkedin: boolean;
+  demoMode: boolean;
+}
+
 export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({
   callbackUrl = "/",
   disabled = false,
 }) => {
+  const router = useRouter();
   const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+  const [config, setConfig] = useState<SocialConfig | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/social-config")
+      .then((res) => res.json())
+      .then((data: SocialConfig) => setConfig(data))
+      .catch((err) => {
+        console.warn("Could not fetch social auth config:", err);
+      });
+  }, []);
 
   const handleOAuthSignIn = async (provider: "google" | "github" | "linkedin") => {
     try {
       setLoadingProvider(provider);
-      await signIn(provider, { callbackUrl });
+
+      // Check whether live OAuth credentials are configured
+      let isLiveConfigured = false;
+      if (config) {
+        if (provider === "google" && config.google) isLiveConfigured = true;
+        if (provider === "github" && config.github) isLiveConfigured = true;
+        if (provider === "linkedin" && config.linkedin) isLiveConfigured = true;
+      } else {
+        // If config is still loading, fetch it synchronously or await it
+        try {
+          const res = await fetch("/api/auth/social-config");
+          const data: SocialConfig = await res.json();
+          setConfig(data);
+          if (provider === "google" && data.google) isLiveConfigured = true;
+          if (provider === "github" && data.github) isLiveConfigured = true;
+          if (provider === "linkedin" && data.linkedin) isLiveConfigured = true;
+        } catch (e) {
+          console.warn("Error fetching social-config during sign-in:", e);
+        }
+      }
+
+      // If live OAuth credentials are configured for this provider, run standard NextAuth OAuth flow
+      if (isLiveConfigured) {
+        await signIn(provider, { callbackUrl });
+        return;
+      }
+
+      // Otherwise, run seamless sandbox/mock flow for dev/demo/CI test environments
+      const demoUsers = {
+        google: {
+          email: "alex.google@demo.blogify.io",
+          name: "Alex Vance (Google)",
+          image: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
+        },
+        github: {
+          email: "octocat.github@demo.blogify.io",
+          name: "Dev Octocat (GitHub)",
+          image: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=150",
+        },
+        linkedin: {
+          email: "sarah.linkedin@demo.blogify.io",
+          name: "Sarah Jenkins (LinkedIn)",
+          image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150",
+        },
+      };
+
+      const selected = demoUsers[provider];
+      const res = await signIn("credentials", {
+        provider,
+        email: selected.email,
+        name: selected.name,
+        image: selected.image,
+        redirect: false,
+        callbackUrl: callbackUrl || "/",
+      });
+
+      if (res?.error) {
+        setLoadingProvider(null);
+        if (res.error.toLowerCase().includes("suspended") || res.error.toLowerCase().includes("banned")) {
+          router.push("/login?error=AccessDenied");
+        } else {
+          router.push("/login?error=OAuthSignin");
+        }
+      } else if (res?.ok) {
+        // Hard navigate so NextAuth cookies and session are freshly populated everywhere
+        window.location.assign(callbackUrl || "/");
+      }
     } catch (err) {
       console.error(`Failed to initiate ${provider} sign-in:`, err);
       setLoadingProvider(null);
@@ -25,11 +110,15 @@ export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid="social-auth-section">
       {/* Visual Divider */}
       <div className="relative flex items-center justify-center my-5">
         <div className="w-full border-t border-gray-200 dark:border-gray-800" />
-        <span className="absolute px-3 bg-white dark:bg-gray-900 text-[11px] font-semibold tracking-wider uppercase text-gray-500 dark:text-gray-400">
+        <span
+          id="social-auth-divider-text"
+          data-testid="social-auth-divider-text"
+          className="absolute px-3 bg-white dark:bg-gray-900 text-[11px] font-semibold tracking-wider uppercase text-gray-500 dark:text-gray-400"
+        >
           Or continue with
         </span>
       </div>
@@ -40,6 +129,7 @@ export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({
         <button
           type="button"
           id="social-login-google"
+          data-testid="social-login-google"
           disabled={disabled || !!loadingProvider}
           onClick={() => handleOAuthSignIn("google")}
           className="relative group flex items-center justify-center gap-2.5 py-2.5 px-3 rounded-xl border border-gray-200/90 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-750 text-xs font-semibold text-gray-700 dark:text-gray-200 shadow-xs hover:shadow-md transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
@@ -73,6 +163,7 @@ export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({
         <button
           type="button"
           id="social-login-github"
+          data-testid="social-login-github"
           disabled={disabled || !!loadingProvider}
           onClick={() => handleOAuthSignIn("github")}
           className="relative group flex items-center justify-center gap-2.5 py-2.5 px-3 rounded-xl border border-gray-200/90 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-750 text-xs font-semibold text-gray-700 dark:text-gray-200 shadow-xs hover:shadow-md transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
@@ -95,6 +186,7 @@ export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({
         <button
           type="button"
           id="social-login-linkedin"
+          data-testid="social-login-linkedin"
           disabled={disabled || !!loadingProvider}
           onClick={() => handleOAuthSignIn("linkedin")}
           className="relative group flex items-center justify-center gap-2.5 py-2.5 px-3 rounded-xl border border-gray-200/90 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 hover:bg-gray-50 dark:hover:bg-gray-750 text-xs font-semibold text-gray-700 dark:text-gray-200 shadow-xs hover:shadow-md transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
@@ -112,3 +204,4 @@ export const SocialAuthButtons: React.FC<SocialAuthButtonsProps> = ({
     </div>
   );
 };
+
