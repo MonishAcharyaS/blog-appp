@@ -311,4 +311,137 @@ test.describe("PROJ-304: Social Sharing & Dynamic Reading Time Indicator E2E Tes
     await page.keyboard.press("Escape");
     await expect(modal).not.toBeVisible();
   });
+
+  /* =========================================================================
+   * ISSUE #30: Button Affordance, Instagram Support & Multi-Platform Sharing
+   * ========================================================================= */
+  test("TC-30.1: Share triggers in article header & footer render with prominent button styling (not plain text)", async ({
+    page,
+  }) => {
+    await page.goto(`/blog/${testPostSlug}`);
+    await page.waitForLoadState("domcontentloaded");
+
+    const headerShareBtn = page.locator("#article-share-btn");
+    await expect(headerShareBtn).toBeVisible();
+    await expect(headerShareBtn).toHaveRole("button");
+    await expect(headerShareBtn).toContainText("Share");
+
+    // Verify SVG icon exists inside button
+    await expect(headerShareBtn.locator("svg")).toBeVisible();
+
+    // Verify button styling traits (non-transparent background, padding, rounded border)
+    const headerBtnStyle = await headerShareBtn.evaluate((el) => {
+      const computed = window.getComputedStyle(el);
+      return {
+        display: computed.display,
+        borderRadius: computed.borderRadius,
+        paddingLeft: computed.paddingLeft,
+        paddingRight: computed.paddingRight,
+        color: computed.color,
+      };
+    });
+    expect(["flex", "inline-flex"]).toContain(headerBtnStyle.display);
+    expect(parseFloat(headerBtnStyle.borderRadius)).toBeGreaterThan(0);
+    expect(parseFloat(headerBtnStyle.paddingLeft)).toBeGreaterThan(0);
+
+    // Verify footer share button as well
+    const footerShareBtn = page.locator("#footer-share-btn");
+    await expect(footerShareBtn).toBeVisible();
+    await expect(footerShareBtn).toHaveRole("button");
+    await expect(footerShareBtn).toContainText("Share");
+  });
+
+  test("TC-30.2: Blog card share trigger renders as an interactive button with label and icon", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    const firstCardShareBtn = page.locator("button[id^='card-share-btn-']").first();
+    await expect(firstCardShareBtn).toBeVisible();
+    await expect(firstCardShareBtn).toHaveRole("button");
+    await expect(firstCardShareBtn).toContainText("Share");
+    await expect(firstCardShareBtn.locator("svg")).toBeVisible();
+
+    // Check button styling: padding, rounded borders, background
+    const cardBtnStyle = await firstCardShareBtn.evaluate((el) => {
+      const computed = window.getComputedStyle(el);
+      return {
+        display: computed.display,
+        borderRadius: computed.borderRadius,
+        paddingLeft: computed.paddingLeft,
+        cursor: computed.cursor,
+      };
+    });
+    expect(["flex", "inline-flex"]).toContain(cardBtnStyle.display);
+    expect(cardBtnStyle.cursor).toBe("pointer");
+    expect(parseFloat(cardBtnStyle.borderRadius)).toBeGreaterThan(0);
+    expect(parseFloat(cardBtnStyle.paddingLeft)).toBeGreaterThan(0);
+  });
+
+  test("TC-30.3: Multi-platform share dialog includes Instagram with direct clipboard link copy", async ({
+    page,
+    context,
+  }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+
+    await page.goto(`/blog/${testPostSlug}`);
+    await page.waitForLoadState("domcontentloaded");
+
+    await page.click("#article-share-btn");
+    const modal = page.locator("#social-share-modal");
+    await expect(modal).toBeVisible();
+
+    // Verify Instagram button is rendered in the social grid
+    const instaBtn = modal.locator("#share-instagram-btn");
+    await expect(instaBtn).toBeVisible();
+    await expect(instaBtn).toContainText("Instagram");
+
+    // Intercept window.open call when Instagram button is clicked
+    const popupPromise = page.waitForEvent("popup", { timeout: 4000 }).catch(() => null);
+    await instaBtn.click();
+    const popup = await popupPromise;
+    if (popup) {
+      expect(popup.url()).toContain("instagram.com");
+      await popup.close();
+    }
+
+    // Verify article URL is copied into clipboard for Instagram story/bio sharing
+    const clipboardText = await page.evaluate(async () => {
+      return await navigator.clipboard.readText();
+    });
+    expect(clipboardText).toContain(`/blog/${testPostSlug}`);
+  });
+
+  test("TC-30.4: Clicking card share button opens modal with all 7 destinations including Instagram", async ({
+    page,
+  }) => {
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    const firstCardShareBtn = page.locator("button[id^='card-share-btn-']").first();
+    await firstCardShareBtn.click();
+
+    const modal = page.locator("#social-share-modal");
+    await expect(modal).toBeVisible();
+
+    // Verify all 7 social platform destinations are visible and actionable
+    const expectedPlatforms = [
+      "#share-whatsapp-btn",
+      "#share-twitter-btn",
+      "#share-linkedin-btn",
+      "#share-facebook-btn",
+      "#share-reddit-btn",
+      "#share-telegram-btn",
+      "#share-instagram-btn",
+    ];
+
+    for (const platformId of expectedPlatforms) {
+      await expect(modal.locator(platformId)).toBeVisible();
+    }
+
+    // Dismiss with Escape
+    await page.keyboard.press("Escape");
+    await expect(modal).not.toBeVisible();
+  });
 });

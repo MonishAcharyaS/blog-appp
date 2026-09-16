@@ -128,28 +128,29 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
               <span>{likesCount}</span>
             </span>
 
-            {/* Share Trigger */}
+            {/* Share Trigger Button */}
             <button
               type="button"
               id={`card-share-btn-${post.slug}`}
               data-testid={`card-share-btn-${post.slug}`}
               aria-label={`Share ${post.title}`}
-              title="Share article"
+              title="Share article across platforms"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 setIsShareOpen(true);
               }}
-              className="flex items-center gap-1 text-gray-400 hover:text-[#5B48EE] dark:hover:text-indigo-400 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200/80 dark:border-indigo-800/80 shadow-2xs hover:scale-102 active:scale-95 transition-all duration-150 cursor-pointer"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="2"
+                  strokeWidth="2.2"
                   d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
                 />
               </svg>
+              <span>Share</span>
             </button>
           </div>
         </div>
