@@ -222,7 +222,12 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
               variant="footer"
             />
           </div>
-          <SocialShareButtons title={blogPost.title} slug={blogPost.slug} variant="footer" />
+          <SocialShareButtons
+            title={blogPost.title}
+            slug={blogPost.slug}
+            excerpt={blogPost.excerpt}
+            variant="footer"
+          />
         </div>
 
         {/* Author Bio Card */}

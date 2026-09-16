@@ -122,7 +122,7 @@ export const ArticleHeader: React.FC<ArticleHeaderProps> = ({
             initialIsBookmarked={initialIsBookmarked}
             variant="header"
           />
-          <SocialShareButtons title={post.title} slug={post.slug} />
+          <SocialShareButtons title={post.title} slug={post.slug} excerpt={post.excerpt} />
         </div>
       </div>
 
