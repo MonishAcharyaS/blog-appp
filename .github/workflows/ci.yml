@@ -49,7 +49,7 @@ jobs:
           npx prisma generate
           npx prisma validate
           npx prisma db push --skip-generate
-          npm run db:seed
+          npx prisma db seed
 
       - name: Type Check
         run: npx tsc --noEmit
