@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     let orderBy: any = { createdAt: "desc" };
     if (sort === "views") {
       orderBy = { views: "desc" };
-    } else if (sort === "likes") {
+    } else if (sort === "likes" || sort === "upvotes") {
       orderBy = {
         likes: {
           _count: "desc",

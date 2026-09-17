@@ -23,8 +23,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     setInputValue(value);
   }, [value]);
 
-  // Debounce search typing
+  // Debounce search typing only when inputValue differs from current external value
   useEffect(() => {
+    if (inputValue === value) return;
+
     const timer = setTimeout(() => {
       startTransition(() => {
         onChange(inputValue);
@@ -32,7 +34,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     }, debounceMs);
 
     return () => clearTimeout(timer);
-  }, [inputValue, debounceMs, onChange]);
+  }, [inputValue, value, debounceMs, onChange]);
 
   const handleClear = () => {
     setInputValue("");

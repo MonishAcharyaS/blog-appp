@@ -21,7 +21,7 @@ export const DiscoveryFeed: React.FC<DiscoveryFeedProps> = ({
   const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedSort, setSelectedSort] = useState<SortOption>("latest");
+  const [selectedSort, setSelectedSort] = useState<SortOption>("likes");
   const [isLoading, setIsLoading] = useState(false);
   const isFirstRender = useRef(true);
 
@@ -67,11 +67,11 @@ export const DiscoveryFeed: React.FC<DiscoveryFeedProps> = ({
   const handleResetFilters = () => {
     setSearchQuery("");
     setSelectedCategory("all");
-    setSelectedSort("latest");
+    setSelectedSort("likes");
   };
 
   const hasActiveFilters = Boolean(
-    searchQuery.trim() || selectedCategory !== "all" || selectedSort !== "latest"
+    searchQuery.trim() || selectedCategory !== "all" || selectedSort !== "likes"
   );
 
   return (
@@ -177,7 +177,7 @@ export const DiscoveryFeed: React.FC<DiscoveryFeedProps> = ({
           {hasActiveFilters && (
             <button
               type="button"
-              id="discovery-reset-filters-btn"
+              id="reset-discovery-filters-btn"
               data-testid="discovery-reset-filters-btn"
               onClick={handleResetFilters}
               className="px-5 py-2.5 rounded-xl font-semibold text-xs text-white bg-[#5B48EE] hover:bg-[#4936E3] transition-all cursor-pointer shadow-xs"

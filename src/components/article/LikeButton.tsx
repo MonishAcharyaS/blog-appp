@@ -26,6 +26,25 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
 
+  // Synchronize authenticated user's like state on mount
+  React.useEffect(() => {
+    if (status === "authenticated" && session?.user && initialIsLiked === false) {
+      let isMounted = true;
+      fetch(`/api/posts/${postId}/like`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (data && isMounted) {
+            setIsLiked(data.liked);
+            setLikesCount(data.likesCount);
+          }
+        })
+        .catch(() => {});
+      return () => {
+        isMounted = false;
+      };
+    }
+  }, [postId, status, session, initialIsLiked]);
+
   const prefix = variant;
 
   const handleLikeToggle = async () => {
@@ -75,23 +94,38 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
     }
   };
 
+  const isCard = variant === "card";
+
   return (
     <div className={`relative inline-flex items-center ${className}`}>
       <button
-        id={`${prefix}-like-btn`}
-        data-testid={`${prefix}-like-btn`}
+        id={isCard ? `card-upvote-btn-${postId}` : `${prefix}-like-btn`}
+        data-testid={isCard ? "card-upvote-btn" : `${prefix}-like-btn`}
         type="button"
-        onClick={handleLikeToggle}
-        aria-label={isLiked ? "Unlike post" : "Like post"}
-        className={`group inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
-          isLiked
-            ? "bg-rose-50 border-rose-200 text-rose-600 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-400 shadow-sm"
-            : "bg-white border-gray-200 text-gray-700 hover:border-rose-200 hover:text-rose-500 hover:bg-rose-50/50 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-300 dark:hover:border-rose-900/60 dark:hover:text-rose-400 dark:hover:bg-rose-950/20"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleLikeToggle();
+        }}
+        aria-label={isLiked ? "Unlike post" : "Upvote post"}
+        title={isLiked ? "Unlike post" : "Upvote post"}
+        className={`group inline-flex items-center gap-1.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
+          isCard
+            ? `px-2.5 py-1 ${
+                isLiked
+                  ? "bg-rose-50 border-rose-200 text-rose-600 dark:bg-rose-950/50 dark:border-rose-800/80 dark:text-rose-400 shadow-2xs"
+                  : "bg-gray-50 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700/80 text-gray-600 dark:text-gray-300 hover:border-rose-200 hover:text-rose-500 hover:bg-rose-50/40 dark:hover:border-rose-900/50 dark:hover:text-rose-400"
+              }`
+            : `px-3.5 py-1.5 ${
+                isLiked
+                  ? "bg-rose-50 border-rose-200 text-rose-600 dark:bg-rose-950/40 dark:border-rose-900/60 dark:text-rose-400 shadow-sm"
+                  : "bg-white border-gray-200 text-gray-700 hover:border-rose-200 hover:text-rose-500 hover:bg-rose-50/50 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-300 dark:hover:border-rose-900/60 dark:hover:text-rose-400 dark:hover:bg-rose-950/20"
+              }`
         } ${isAnimating ? "scale-110" : "scale-100"} active:scale-95`}
       >
         <svg
-          id={`${prefix}-like-icon`}
-          className={`w-4 h-4 transition-transform duration-300 ${
+          id={isCard ? `card-upvote-icon-${postId}` : `${prefix}-like-icon`}
+          className={`${isCard ? "w-3.5 h-3.5" : "w-4 h-4"} transition-transform duration-300 ${
             isLiked
               ? "fill-rose-500 text-rose-500 scale-110"
               : "fill-none stroke-current group-hover:text-rose-500 group-hover:scale-110"
@@ -107,9 +141,9 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
           />
         </svg>
         <span
-          id={`${prefix}-like-count`}
-          data-testid={`${prefix}-like-count`}
-          className="font-bold tabular-nums"
+          id={isCard ? `card-upvote-count-${postId}` : `${prefix}-like-count`}
+          data-testid={isCard ? "card-upvote-count" : `${prefix}-like-count`}
+          className="font-bold tabular-nums text-[11px]"
         >
           {likesCount}
         </span>

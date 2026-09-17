@@ -93,10 +93,14 @@ export default async function Home() {
         },
       }))) as unknown as BlogPost | null;
 
-    // Fetch initial posts for the discovery grid
+    // Fetch initial posts for the discovery grid, ranked by highest upvotes on top
     const rawInitialPosts = await prisma.post.findMany({
       where: { published: true },
-      orderBy: { createdAt: "desc" },
+      orderBy: {
+        likes: {
+          _count: "desc",
+        },
+      },
       take: 12,
       include: {
         author: {
