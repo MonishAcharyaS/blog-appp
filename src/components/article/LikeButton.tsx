@@ -22,7 +22,7 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
   const { data: session, status } = useSession();
   const [likesCount, setLikesCount] = useState<number>(initialLikesCount);
   const [isLiked, setIsLiked] = useState<boolean>(initialIsLiked);
-  const [isPending, startTransition] = useTransition();
+  const [_isPending, _startTransition] = useTransition();
   const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
 

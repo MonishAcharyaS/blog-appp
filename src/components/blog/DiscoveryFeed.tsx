@@ -32,6 +32,10 @@ export const DiscoveryFeed: React.FC<DiscoveryFeedProps> = ({
     }
   }, [initialSearchQuery]);
 
+  const hasActiveFilters = Boolean(
+    searchQuery.trim() || selectedCategory !== "all" || selectedSort !== "likes"
+  );
+
   const fetchFilteredPosts = useCallback(
     async (search: string, category: string, sort: SortOption) => {
       setIsLoading(true);
@@ -55,24 +59,24 @@ export const DiscoveryFeed: React.FC<DiscoveryFeedProps> = ({
   );
 
   useEffect(() => {
-    // Avoid re-fetching on mount if filters are in their default initial state
+    // If initialPosts is provided on SSR mount, use it; otherwise fetch
     if (isFirstRender.current) {
       isFirstRender.current = false;
+      if (!initialPosts || initialPosts.length === 0) {
+        fetchFilteredPosts(searchQuery, selectedCategory, selectedSort);
+      }
       return;
     }
 
     fetchFilteredPosts(searchQuery, selectedCategory, selectedSort);
-  }, [searchQuery, selectedCategory, selectedSort, fetchFilteredPosts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, selectedCategory, selectedSort]);
 
   const handleResetFilters = () => {
     setSearchQuery("");
     setSelectedCategory("all");
     setSelectedSort("likes");
   };
-
-  const hasActiveFilters = Boolean(
-    searchQuery.trim() || selectedCategory !== "all" || selectedSort !== "likes"
-  );
 
   return (
     <section id="discovery-feed-section" className="space-y-8 pt-4">
