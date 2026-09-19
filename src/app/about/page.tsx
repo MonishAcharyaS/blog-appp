@@ -26,7 +26,7 @@ export default function AboutPage() {
 
       {/* Grid Features */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <TiltCard intensity={15} glare={true} className="h-full">
+        <TiltCard maxTilt={15} enableGlare={true} className="h-full">
           <div className="h-full p-6 rounded-2xl bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl border border-gray-200 dark:border-cyan-500/20 shadow-lg space-y-4">
             <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-[#00F0FF] text-xl font-mono font-bold">
               01
@@ -38,7 +38,7 @@ export default function AboutPage() {
           </div>
         </TiltCard>
 
-        <TiltCard intensity={15} glare={true} className="h-full">
+        <TiltCard maxTilt={15} enableGlare={true} className="h-full">
           <div className="h-full p-6 rounded-2xl bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl border border-gray-200 dark:border-cyan-500/20 shadow-lg space-y-4">
             <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-[#5B48EE] dark:text-[#818CF8] text-xl font-mono font-bold">
               02
@@ -50,7 +50,7 @@ export default function AboutPage() {
           </div>
         </TiltCard>
 
-        <TiltCard intensity={15} glare={true} className="h-full">
+        <TiltCard maxTilt={15} enableGlare={true} className="h-full">
           <div className="h-full p-6 rounded-2xl bg-white/70 dark:bg-gray-900/60 backdrop-blur-xl border border-gray-200 dark:border-cyan-500/20 shadow-lg space-y-4">
             <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 text-xl font-mono font-bold">
               03
