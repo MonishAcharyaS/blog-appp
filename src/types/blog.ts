@@ -33,6 +33,7 @@ export interface BlogPost {
   _count?: {
     likes: number;
     comments: number;
+    thumbsUp?: number;
   };
 }
 

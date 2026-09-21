@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getPostThumbsCount } from "@/lib/thumbs";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const rawSearch = searchParams.get("search") || "";
     const categorySlug = searchParams.get("category") || "";
-    const sort = searchParams.get("sort") || "latest"; // latest | likes | views
+    const sort = searchParams.get("sort") || "thumbs"; // thumbs | latest | likes | views
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.max(1, Math.min(50, parseInt(searchParams.get("limit") || "12", 10)));
     const skip = (page - 1) * limit;
@@ -33,25 +34,21 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Determine orderBy
+    // Determine orderBy for database query
     let orderBy: any = { createdAt: "desc" };
     if (sort === "views") {
       orderBy = { views: "desc" };
-    } else if (sort === "likes" || sort === "upvotes") {
-      orderBy = {
-        likes: {
-          _count: "desc",
-        },
-      };
     }
 
-    const [total, posts] = await Promise.all([
+    const isCustomSort = sort === "thumbs" || sort === "thumbsUp" || sort === "upvotes" || sort === "likes";
+
+    const [total, rawPosts] = await Promise.all([
       prisma.post.count({ where }),
       prisma.post.findMany({
         where,
         orderBy,
-        skip,
-        take: limit,
+        skip: isCustomSort ? 0 : skip,
+        take: isCustomSort ? 100 : limit,
         include: {
           author: {
             select: {
@@ -90,8 +87,38 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
+    // Attach computed / persistent thumbsUp count to each post
+    let posts = rawPosts.map((p) => {
+      const thumbsUp = getPostThumbsCount(p.id);
+      return {
+        ...p,
+        _count: {
+          ...p._count,
+          thumbsUp,
+        },
+      };
+    });
+
+    // If sorting by likes, order by likes count descending
+    if (sort === "likes") {
+      posts.sort((a, b) => {
+        const diff = (b._count?.likes ?? 0) - (a._count?.likes ?? 0);
+        if (diff !== 0) return diff;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+    } else if (sort === "thumbs" || sort === "thumbsUp" || sort === "upvotes" || !sort) {
+      // Default: order strictly by thumbsUp count descending
+      posts.sort((a, b) => {
+        const diff = (b._count?.thumbsUp ?? 0) - (a._count?.thumbsUp ?? 0);
+        if (diff !== 0) return diff;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+    }
+
+    const paginatedPosts = isCustomSort ? posts.slice(skip, skip + limit) : posts;
+
     return NextResponse.json({
-      posts,
+      posts: paginatedPosts,
       total,
       page,
       totalPages: Math.ceil(total / limit),

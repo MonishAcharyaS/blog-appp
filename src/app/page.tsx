@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { FeaturedHero } from "@/components/blog/FeaturedHero";
 import { DiscoveryFeed } from "@/components/blog/DiscoveryFeed";
 import { BlogPost, CategoryItem } from "@/types/blog";
+import { getPostThumbsCount } from "@/lib/thumbs";
 
 export const dynamic = "force-dynamic";
 
@@ -93,15 +94,11 @@ export default async function Home() {
         },
       }))) as unknown as BlogPost | null;
 
-    // Fetch initial posts for the discovery grid, ranked by highest upvotes on top
+    // Fetch initial posts for the discovery grid, ranked by thumbs up endorsements
     const rawInitialPosts = await prisma.post.findMany({
       where: { published: true },
-      orderBy: {
-        likes: {
-          _count: "desc",
-        },
-      },
-      take: 12,
+      orderBy: { createdAt: "desc" },
+      take: 100,
       include: {
         author: {
           select: {
@@ -150,7 +147,25 @@ export default async function Home() {
       },
     })) as unknown as CategoryItem[];
 
-    initialPosts = rawInitialPosts as unknown as BlogPost[];
+    // Map each post to attach calculated/persistent thumbsUp count and sort by thumbsUp count descending
+    const postsWithThumbs = (rawInitialPosts as unknown as BlogPost[]).map((p) => {
+      const thumbsUp = getPostThumbsCount(p.id);
+      return {
+        ...p,
+        _count: {
+          ...p._count,
+          thumbsUp,
+        },
+      };
+    });
+
+    postsWithThumbs.sort((a, b) => {
+      const diff = (b._count?.thumbsUp ?? 0) - (a._count?.thumbsUp ?? 0);
+      if (diff !== 0) return diff;
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    initialPosts = postsWithThumbs.slice(0, 12);
   } catch (dbErr) {
     console.warn("Home page database connection error, rendering empty feed fallback:", dbErr);
   }

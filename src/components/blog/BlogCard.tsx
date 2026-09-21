@@ -158,6 +158,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
               {/* Dedicated Thumbs Up Button */}
               <ThumbsUpButton
                 postId={post.id}
+                initialThumbsCount={post._count?.thumbsUp}
                 variant="card"
               />
 

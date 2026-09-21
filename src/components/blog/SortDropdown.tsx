@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export type SortOption = "latest" | "likes" | "views";
+export type SortOption = "thumbs" | "latest" | "likes" | "views";
 
 interface SortDropdownProps {
   value: SortOption;
@@ -24,8 +24,9 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({ value, onChange }) =
           aria-label="Sort articles by"
           className="appearance-none pl-3 pr-8 py-2 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-xs font-semibold text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-[#5B48EE] cursor-pointer shadow-xs"
         >
-          <option value="likes">Top Upvoted</option>
+          <option value="thumbs">Top Endorsed (Thumbs Up)</option>
           <option value="latest">Latest First</option>
+          <option value="likes">Most Appreciated (Likes)</option>
           <option value="views">Most Viewed</option>
         </select>
         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
