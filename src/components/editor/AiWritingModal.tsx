@@ -18,7 +18,7 @@ export const AiWritingModal: React.FC<AiWritingModalProps> = ({
   isOpen,
   onClose,
   initialMode = "generate",
-  _currentTitle = "",
+  currentTitle: _currentTitle = "",
   currentContent = "",
   onApplyDraft,
   onApplyImprovement,

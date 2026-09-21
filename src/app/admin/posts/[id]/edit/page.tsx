@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { ImageUploadDropzone } from "@/components/common/ImageUploadDropzone";
 import { AiWritingModal, AiModalMode } from "@/components/editor/AiWritingModal";
+import { AiImageModal } from "@/components/editor/AiImageModal";
 import { CategoryItem } from "@/types/blog";
 
 export default function EditPostPage() {
@@ -28,6 +29,9 @@ export default function EditPostPage() {
   // AI Writing Assistant state
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [aiModalMode, setAiModalMode] = useState<AiModalMode>("improve");
+
+  // AI Image Studio state
+  const [isAiImageModalOpen, setIsAiImageModalOpen] = useState(false);
 
   useEffect(() => {
     // Load categories
@@ -257,17 +261,36 @@ export default function EditPostPage() {
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
                 Cover Image
               </label>
-              {coverImage && (
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  id="cover-image-remove-btn"
-                  data-testid="cover-image-remove-btn"
-                  onClick={() => setCoverImage("")}
-                  className="text-xs text-red-500 hover:text-red-700 font-semibold cursor-pointer"
+                  id="open-ai-image-modal-btn"
+                  data-testid="open-ai-image-modal-btn"
+                  onClick={() => setIsAiImageModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-fuchsia-600 dark:text-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-950/50 hover:bg-fuchsia-100 dark:hover:bg-fuchsia-900/60 border border-fuchsia-200 dark:border-fuchsia-800/60 transition-colors cursor-pointer"
                 >
-                  Remove Image
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <span>Generate with AI</span>
                 </button>
-              )}
+                {coverImage && (
+                  <button
+                    type="button"
+                    id="cover-image-remove-btn"
+                    data-testid="cover-image-remove-btn"
+                    onClick={() => setCoverImage("")}
+                    className="text-xs text-red-500 hover:text-red-700 font-semibold cursor-pointer"
+                  >
+                    Remove Image
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Thumbnail Preview */}
@@ -354,6 +377,21 @@ export default function EditPostPage() {
           }}
           onApplyImprovement={(improved) => {
             setContent(improved);
+            if (errorMessage) setErrorMessage("");
+          }}
+        />
+
+        {/* AI Cover Image Studio Modal */}
+        <AiImageModal
+          isOpen={isAiImageModalOpen}
+          onClose={() => setIsAiImageModalOpen(false)}
+          currentTitle={title}
+          currentCategory={
+            categories.find((c) => c.id === categoryId)?.name || customCategoryName
+          }
+          currentExcerpt={excerpt}
+          onApplyImage={(url) => {
+            setCoverImage(url);
             if (errorMessage) setErrorMessage("");
           }}
         />
