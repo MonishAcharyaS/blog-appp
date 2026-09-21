@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { AmbientOrbs } from "@/components/3d/AmbientOrbs";
+import { CyberMatrixGrid } from "@/components/3d/CyberMatrixGrid";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -46,6 +47,7 @@ export default function RootLayout({
         <AuthProvider>
           <ThemeProvider>
             <AmbientOrbs />
+            <CyberMatrixGrid />
             <div className="relative z-10 flex-1 flex flex-col min-h-screen">
               <Navbar />
               <main className="flex-1 flex flex-col">{children}</main>
