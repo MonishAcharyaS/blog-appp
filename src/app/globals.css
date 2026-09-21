@@ -163,11 +163,69 @@ body {
   .spatial-card,
   .animate-orb-1,
   .animate-orb-2,
-  .animate-orb-3 {
+  .animate-orb-3,
+  .tech-pulse {
     transition: none !important;
     animation: none !important;
     transform: none !important;
   }
+}
+
+/* ==========================================================================
+   Futuristic Technology & Engineering Theme Styling
+   ========================================================================== */
+
+/* Engineering Cyber-Grid Mesh Background */
+.tech-grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(99, 102, 241, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.dark .tech-grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(99, 102, 241, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Cyber Glow Utilities */
+.tech-glow-cyan {
+  box-shadow: 0 0 20px -3px rgba(6, 182, 212, 0.4), 0 0 8px -1px rgba(6, 182, 212, 0.2);
+}
+
+.tech-glow-indigo {
+  box-shadow: 0 0 24px -4px rgba(99, 102, 241, 0.45), 0 0 10px -2px rgba(99, 102, 241, 0.25);
+}
+
+.tech-glow-violet {
+  box-shadow: 0 0 24px -4px rgba(168, 85, 247, 0.45), 0 0 10px -2px rgba(168, 85, 247, 0.25);
+}
+
+/* High-tech Border Gradient Accent */
+.tech-border-glow {
+  position: relative;
+}
+
+.tech-border-glow::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(6, 182, 212, 0.3), rgba(168, 85, 247, 0.5));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: destination-out;
+  pointer-events: none;
+}
+
+/* Monospaced Metric Badge */
+.tech-chip {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  letter-spacing: -0.02em;
 }
 
 /* Article Typography Styling */

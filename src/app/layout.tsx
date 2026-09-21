@@ -42,7 +42,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="min-h-full flex flex-col antialiased relative selection:bg-indigo-500/20 selection:text-indigo-600">
+      <body className="min-h-full flex flex-col antialiased relative selection:bg-indigo-500/20 selection:text-indigo-600 tech-grid-bg">
         <AuthProvider>
           <ThemeProvider>
             <AmbientOrbs />

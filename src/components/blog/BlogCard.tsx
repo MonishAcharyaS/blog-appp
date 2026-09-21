@@ -64,12 +64,12 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
               {post.category ? (
                 <span
                   data-category-slug={post.category.slug}
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-[#5B48EE] dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50"
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/60 text-[#5B48EE] dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50 tech-chip"
                 >
                   {post.category.name}
                 </span>
               ) : (
-                <span className="text-xs text-gray-400">General</span>
+                <span className="text-xs text-gray-400 tech-chip">General</span>
               )}
               <span className="text-[11px] font-mono text-gray-500 dark:text-gray-400">
                 {post.readingTime}

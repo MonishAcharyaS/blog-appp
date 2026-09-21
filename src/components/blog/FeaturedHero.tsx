@@ -30,28 +30,29 @@ export const FeaturedHero: React.FC<FeaturedHeroProps> = ({ post }) => {
         {/* Left Content Column */}
         <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
           <div className="space-y-4">
-            {/* Badges Row */}
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-gradient-to-r from-[#5B48EE] to-[#818CF8] text-white shadow-xs">
-                <svg
-                  className="w-3.5 h-3.5 fill-current"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-                Featured Story
-              </span>
-
-              {post.category && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-[#5B48EE] dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/50">
-                  {post.category.name}
+              {/* Badges Row */}
+              <div className="flex flex-wrap items-center gap-2.5">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase bg-gradient-to-r from-[#5B48EE] via-indigo-500 to-[#06B6D4] text-white shadow-xs tech-chip">
+                  <svg
+                    className="w-3.5 h-3.5 fill-current animate-pulse"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                  Tech Radar // Featured
                 </span>
-              )}
 
-              <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                {post.readingTime}
-              </span>
-            </div>
+                {post.category && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-cyan-50 dark:bg-cyan-950/50 text-cyan-600 dark:text-cyan-400 border border-cyan-200/60 dark:border-cyan-800/50 tech-chip">
+                    {post.category.name}
+                  </span>
+                )}
+
+                <span className="text-xs font-mono text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping inline-block" />
+                  {post.readingTime}
+                </span>
+              </div>
 
             {/* Headline Title */}
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight hover:text-[#5B48EE] dark:hover:text-[#818CF8] transition-colors">

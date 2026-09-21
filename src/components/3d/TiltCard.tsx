@@ -31,9 +31,14 @@ export const TiltCard: React.FC<TiltCardProps> = ({
   });
   const [isHovered, setIsHovered] = useState(false);
 
+  // Check for prefers-reduced-motion
+  const prefersReducedMotion =
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!cardRef.current) return;
+      if (prefersReducedMotion || !cardRef.current) return;
       const rect = cardRef.current.getBoundingClientRect();
       const width = rect.width;
       const height = rect.height;
@@ -61,7 +66,7 @@ export const TiltCard: React.FC<TiltCardProps> = ({
         });
       }
     },
-    [maxTilt, perspective, enableGlare, glareOpacity]
+    [maxTilt, perspective, enableGlare, glareOpacity, prefersReducedMotion]
   );
 
   const handleMouseEnter = useCallback(() => {
@@ -81,6 +86,7 @@ export const TiltCard: React.FC<TiltCardProps> = ({
   return (
     <div
       ref={cardRef}
+      data-testid="tilt-card-wrapper"
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
