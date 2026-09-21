@@ -111,8 +111,8 @@ test.describe("GitHub Issue #31: Post Upvoting & Upvote-Based Feed Ranking", () 
     const initialText = await countEl.innerText();
     const initialCount = parseInt(initialText.trim(), 10) || 0;
 
-    // Check if card is already upvoted by this user via SVG fill
-    const icon = card.locator("svg").first();
+    // Check if card is already upvoted by this user via upvote icon SVG fill
+    const icon = upvoteBtn.locator("svg");
     const isAlreadyLiked = await icon.evaluate((el) =>
       el.classList.contains("fill-rose-500")
     );

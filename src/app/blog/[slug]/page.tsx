@@ -7,6 +7,7 @@ import { ArticleHeader } from "@/components/article/ArticleHeader";
 import { AuthorBioCard } from "@/components/article/AuthorBioCard";
 import { SocialShareButtons } from "@/components/article/SocialShareButtons";
 import { LikeButton } from "@/components/article/LikeButton";
+import { ThumbsUpButton } from "@/components/article/ThumbsUpButton";
 import { BookmarkButton } from "@/components/article/BookmarkButton";
 import { CommentSection } from "@/components/comments/CommentSection";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -214,6 +215,10 @@ export default async function BlogPostPage({ params }: ArticlePageProps) {
               postId={blogPost.id}
               initialLikesCount={blogPost._count?.likes ?? 0}
               initialIsLiked={initialIsLiked}
+              variant="footer"
+            />
+            <ThumbsUpButton
+              postId={blogPost.id}
               variant="footer"
             />
             <BookmarkButton

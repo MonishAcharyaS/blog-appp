@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BlogPost } from "@/types/blog";
 import { SocialShareButtons } from "./SocialShareButtons";
 import { LikeButton } from "./LikeButton";
+import { ThumbsUpButton } from "./ThumbsUpButton";
 import { BookmarkButton } from "./BookmarkButton";
 
 interface ArticleHeaderProps {
@@ -115,6 +116,10 @@ export const ArticleHeader: React.FC<ArticleHeaderProps> = ({
             postId={post.id}
             initialLikesCount={likesCount}
             initialIsLiked={initialIsLiked}
+            variant="header"
+          />
+          <ThumbsUpButton
+            postId={post.id}
             variant="header"
           />
           <BookmarkButton

@@ -6,6 +6,7 @@ import { BlogPost } from "@/types/blog";
 import { TiltCard } from "@/components/3d/TiltCard";
 import { ShareModal } from "@/components/article/ShareModal";
 import { LikeButton } from "@/components/article/LikeButton";
+import { ThumbsUpButton } from "@/components/article/ThumbsUpButton";
 
 interface BlogCardProps {
   post: BlogPost;
@@ -146,11 +147,17 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
             data-testid="post-card-engagement-bar"
             className="pt-3 border-t border-gray-100 dark:border-gray-800/80 flex items-center justify-between gap-3 text-xs text-gray-500 dark:text-gray-400"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5">
               {/* Interactive Upvote / Like Button */}
               <LikeButton
                 postId={post.id}
                 initialLikesCount={likesCount}
+                variant="card"
+              />
+
+              {/* Dedicated Thumbs Up Button */}
+              <ThumbsUpButton
+                postId={post.id}
                 variant="card"
               />
 
