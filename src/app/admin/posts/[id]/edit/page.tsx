@@ -267,7 +267,7 @@ export default function EditPostPage() {
                   id="open-ai-image-modal-btn"
                   data-testid="open-ai-image-modal-btn"
                   onClick={() => setIsAiImageModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-fuchsia-600 dark:text-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-950/50 hover:bg-fuchsia-100 dark:hover:bg-fuchsia-900/60 border border-fuchsia-200 dark:border-fuchsia-800/60 transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold text-fuchsia-600 dark:text-fuchsia-400 bg-fuchsia-50 dark:bg-fuchsia-950/50 hover:bg-fuchsia-100 dark:hover:bg-fuchsia-900/60 border border-fuchsia-200 dark:border-fuchsia-800/60 transition-colors cursor-pointer shadow-xs"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
@@ -277,7 +277,7 @@ export default function EditPostPage() {
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                     />
                   </svg>
-                  <span>Generate with AI</span>
+                  <span>Generate Cover with AI</span>
                 </button>
                 {coverImage && (
                   <button
@@ -346,9 +346,26 @@ export default function EditPostPage() {
 
         {/* Rich Text Editor */}
         <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-            Article Content
-          </label>
+          <div className="flex items-center justify-between">
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 dark:text-gray-300">
+              Article Content <span className="text-red-500">*</span>
+            </label>
+            <button
+              type="button"
+              id="open-ai-content-btn"
+              data-testid="open-ai-content-btn"
+              onClick={() => {
+                setAiModalMode("improve");
+                setIsAiModalOpen(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#5B48EE] dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/60 shadow-xs transition-all cursor-pointer"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <span>Generate Content with AI</span>
+            </button>
+          </div>
           <RichTextEditor
             value={content}
             onChange={(val) => {
