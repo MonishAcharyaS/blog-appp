@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
@@ -15,6 +15,7 @@ interface RichTextEditorProps {
   placeholder?: string;
   minHeight?: string;
   error?: string;
+  onOpenAiAssistant?: () => void;
 }
 
 export const RichTextEditor: React.FC<RichTextEditorProps> = ({
@@ -23,6 +24,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
   placeholder = "Write your masterpiece here...",
   minHeight = "280px",
   error,
+  onOpenAiAssistant,
 }) => {
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
@@ -111,7 +113,7 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
       }`}
     >
       {/* Formatting Toolbar */}
-      <EditorToolbar editor={editor} />
+      <EditorToolbar editor={editor} onOpenAiAssistant={onOpenAiAssistant} />
 
       {/* Editor Editable Area */}
       <div style={{ minHeight }} className="flex-1 cursor-text">

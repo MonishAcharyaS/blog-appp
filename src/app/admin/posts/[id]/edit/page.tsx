@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { RichTextEditor } from "@/components/editor/RichTextEditor";
 import { ImageUploadDropzone } from "@/components/common/ImageUploadDropzone";
+import { AiWritingModal, AiModalMode } from "@/components/editor/AiWritingModal";
 import { CategoryItem } from "@/types/blog";
 
 export default function EditPostPage() {
@@ -23,6 +24,10 @@ export default function EditPostPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  // AI Writing Assistant state
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [aiModalMode, setAiModalMode] = useState<AiModalMode>("improve");
 
   useEffect(() => {
     // Load categories
@@ -121,13 +126,31 @@ export default function EditPostPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-16">
       {/* Header */}
-      <div className="pb-6 border-b border-gray-200 dark:border-gray-800">
-        <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-          Edit Article
-        </h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-          Update article details, publication state, or content body.
-        </p>
+      <div className="pb-6 border-b border-gray-200 dark:border-gray-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+            Edit Article
+          </h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Update article details, publication state, or content body.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          id="open-ai-generator-btn"
+          data-testid="open-ai-generator-btn"
+          onClick={() => {
+            setAiModalMode("improve");
+            setIsAiModalOpen(true);
+          }}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-[#5B48EE] to-[#7B68EE] hover:opacity-95 shadow-sm hover:shadow-indigo-500/20 transition-all cursor-pointer self-start sm:self-auto"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span>Write with AI</span>
+        </button>
       </div>
 
       {errorMessage && (
@@ -309,8 +332,31 @@ export default function EditPostPage() {
               setContent(val);
               if (errorMessage) setErrorMessage("");
             }}
+            onOpenAiAssistant={() => {
+              setAiModalMode("improve");
+              setIsAiModalOpen(true);
+            }}
           />
         </div>
+
+        {/* AI Writing Assistant Modal */}
+        <AiWritingModal
+          isOpen={isAiModalOpen}
+          onClose={() => setIsAiModalOpen(false)}
+          initialMode={aiModalMode}
+          currentTitle={title}
+          currentContent={content}
+          onApplyDraft={(draft) => {
+            if (draft.title) setTitle(draft.title);
+            if (draft.excerpt) setExcerpt(draft.excerpt);
+            if (draft.content) setContent(draft.content);
+            if (errorMessage) setErrorMessage("");
+          }}
+          onApplyImprovement={(improved) => {
+            setContent(improved);
+            if (errorMessage) setErrorMessage("");
+          }}
+        />
 
         {/* Toggles */}
         <div className="flex flex-wrap items-center gap-6 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-800">

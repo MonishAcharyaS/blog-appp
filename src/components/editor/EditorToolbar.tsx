@@ -6,9 +6,10 @@ import { ImageUploadDropzone } from "@/components/common/ImageUploadDropzone";
 
 interface EditorToolbarProps {
   editor: Editor | null;
+  onOpenAiAssistant?: () => void;
 }
 
-export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
+export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor, onOpenAiAssistant }) => {
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [showImageModal, setShowImageModal] = useState(false);
@@ -237,6 +238,26 @@ export const EditorToolbar: React.FC<EditorToolbarProps> = ({ editor }) => {
       >
         {`{ }`}
       </button>
+
+      <div className="w-px h-5 bg-gray-200 dark:bg-gray-800 mx-1" />
+
+      {/* AI Assistant Quick Trigger */}
+      {onOpenAiAssistant && (
+        <button
+          type="button"
+          id="toolbar-ai-improve-btn"
+          data-testid="toolbar-ai-improve-btn"
+          aria-label="Improve with AI"
+          title="Improve with AI Assistant"
+          onClick={onOpenAiAssistant}
+          className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-[#5B48EE] dark:text-indigo-400 bg-indigo-50/80 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-800/60 transition-colors cursor-pointer"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span>AI Polish</span>
+        </button>
+      )}
 
       <div className="w-px h-5 bg-gray-200 dark:bg-gray-800 mx-1" />
 
