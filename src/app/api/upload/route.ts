@@ -130,17 +130,26 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 6. Generate Collision-Resistant Filename & Write to Disk
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-
+    // 6. Generate Collision-Resistant Filename & Write to Disk or Data URI Fallback
     const randomSuffix = crypto.randomBytes(8).toString("hex");
     const safeFilename = `${Date.now()}-${randomSuffix}${allowedExt}`;
-    const filePath = path.join(uploadDir, safeFilename);
+    let publicUrl = "";
 
-    await writeFile(filePath, buffer);
-
-    const publicUrl = `/uploads/${safeFilename}`;
+    // If running in a serverless environment (e.g. Vercel) where the local filesystem is read-only,
+    // or if writing to disk fails, return a Base64 data URL so uploads work reliably everywhere.
+    try {
+      const uploadDir = path.join(process.cwd(), "public", "uploads");
+      await mkdir(uploadDir, { recursive: true });
+      const filePath = path.join(uploadDir, safeFilename);
+      await writeFile(filePath, buffer);
+      publicUrl = `/uploads/${safeFilename}`;
+    } catch (fsError) {
+      console.warn(
+        "Filesystem write failed (serverless/read-only environment detected). Using Base64 Data URL fallback:",
+        fsError
+      );
+      publicUrl = `data:${mimeType};base64,${buffer.toString("base64")}`;
+    }
 
     return NextResponse.json({
       url: publicUrl,

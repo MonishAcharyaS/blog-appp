@@ -88,11 +88,8 @@ function synthesizeArtPrompt(
   return `A visually stunning blog cover illustration depicting ${subject}. Rendered in a ${style} aesthetic, rich vibrant color palette, professional depth of field, 16:9 banner framing, ultra high detail.`;
 }
 
-// Fallback: Generate local SVG banner to guarantee absolute local availability without external network dependencies
+// Fallback: Generate local SVG banner to guarantee availability without external network dependencies
 async function generateLocalSvgCover(title: string, category: string, style: string, seed: number = 0) {
-  const uploadDir = path.join(process.cwd(), "public", "uploads");
-  await mkdir(uploadDir, { recursive: true });
-
   const gradients = [
     { from: "#4F46E5", to: "#7C3AED", accent: "#38BDF8" },
     { from: "#2563EB", to: "#06B6D4", accent: "#A855F7" },
@@ -168,10 +165,18 @@ async function generateLocalSvgCover(title: string, category: string, style: str
 
   const randomSuffix = crypto.randomBytes(6).toString("hex");
   const filename = `ai-cover-${Date.now()}-${randomSuffix}.svg`;
-  const filePath = path.join(uploadDir, filename);
 
-  await writeFile(filePath, Buffer.from(svgContent, "utf-8"));
-  return `/uploads/${filename}`;
+  // Safely write to disk if allowed, otherwise return inline data URL
+  try {
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    await mkdir(uploadDir, { recursive: true });
+    const filePath = path.join(uploadDir, filename);
+    await writeFile(filePath, Buffer.from(svgContent, "utf-8"));
+    return `/uploads/${filename}`;
+  } catch (fsError) {
+    console.warn("Could not write SVG to local disk (serverless environment detected). Using Data URI fallback.");
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svgContent)}`;
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -246,14 +251,20 @@ export async function POST(req: NextRequest) {
           const data = await resp.json();
           const base64Bytes = data?.predictions?.[0]?.bytesBase64Encoded;
           if (base64Bytes) {
-            const uploadDir = path.join(process.cwd(), "public", "uploads");
-            await mkdir(uploadDir, { recursive: true });
-            const filename = `ai-cover-${Date.now()}-${crypto.randomBytes(6).toString("hex")}.png`;
-            await writeFile(path.join(uploadDir, filename), Buffer.from(base64Bytes, "base64"));
+            let imageUrl = `data:image/png;base64,${base64Bytes}`;
+            try {
+              const uploadDir = path.join(process.cwd(), "public", "uploads");
+              await mkdir(uploadDir, { recursive: true });
+              const filename = `ai-cover-${Date.now()}-${crypto.randomBytes(6).toString("hex")}.png`;
+              await writeFile(path.join(uploadDir, filename), Buffer.from(base64Bytes, "base64"));
+              imageUrl = `/uploads/${filename}`;
+            } catch (diskErr) {
+              console.warn("Could not save Imagen result to disk, using data URL fallback:", diskErr);
+            }
             return NextResponse.json({
               success: true,
               data: {
-                imageUrl: `/uploads/${filename}`,
+                imageUrl,
                 promptUsed: finalPrompt,
                 style,
               },

@@ -149,13 +149,14 @@ export default async function Home() {
     })) as unknown as CategoryItem[];
 
     // Map each post to attach calculated/persistent upvotes and thumbsUp count, and sort by upvotes count descending
-    const postsWithCounts = (rawInitialPosts as unknown as BlogPost[]).map((p) => {
+    const postsWithCounts: BlogPost[] = (rawInitialPosts as unknown as BlogPost[]).map((p) => {
       const thumbsUp = getPostThumbsCount(p.id);
       const upvotes = getPostUpvotesCount(p.id);
       return {
         ...p,
         _count: {
-          ...p._count,
+          likes: p._count?.likes ?? 0,
+          comments: p._count?.comments ?? 0,
           thumbsUp,
           upvotes,
         },
