@@ -31,6 +31,7 @@ export const BlogCard: React.FC<BlogCardProps> = ({ post }) => {
           data-testid="blog-card"
           data-post-slug={post.slug}
           data-likes={likesCount}
+          data-upvotes={post._count?.upvotes ?? 0}
           data-views={post.views}
           className="group flex flex-col h-full spatial-glass rounded-2xl sm:rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 preserve-3d p-5 sm:p-6 space-y-4"
         >

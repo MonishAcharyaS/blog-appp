@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getPostThumbsCount } from "@/lib/thumbs";
+import { getPostUpvotesCount } from "@/lib/upvotes";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const rawSearch = searchParams.get("search") || "";
     const categorySlug = searchParams.get("category") || "";
-    const sort = searchParams.get("sort") || "thumbs"; // thumbs | latest | likes | views
+    const sort = searchParams.get("sort") || "upvotes"; // upvotes | thumbs | latest | likes | views
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.max(1, Math.min(50, parseInt(searchParams.get("limit") || "12", 10)));
     const skip = (page - 1) * limit;
@@ -40,7 +41,7 @@ export async function GET(request: NextRequest) {
       orderBy = { views: "desc" };
     }
 
-    const isCustomSort = sort === "thumbs" || sort === "thumbsUp" || sort === "upvotes" || sort === "likes";
+    const isCustomSort = sort === "upvotes" || sort === "thumbs" || sort === "thumbsUp" || sort === "likes";
 
     const [total, rawPosts] = await Promise.all([
       prisma.post.count({ where }),
@@ -87,29 +88,39 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    // Attach computed / persistent thumbsUp count to each post
+    // Attach computed / persistent upvotes and thumbsUp counts to each post
     let posts = rawPosts.map((p) => {
       const thumbsUp = getPostThumbsCount(p.id);
+      const upvotes = getPostUpvotesCount(p.id);
       return {
         ...p,
         _count: {
           ...p._count,
           thumbsUp,
+          upvotes,
         },
       };
     });
 
-    // If sorting by likes, order by likes count descending
+    // Custom sorting:
     if (sort === "likes") {
+      // Sort strictly by likes count descending
       posts.sort((a, b) => {
         const diff = (b._count?.likes ?? 0) - (a._count?.likes ?? 0);
         if (diff !== 0) return diff;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-    } else if (sort === "thumbs" || sort === "thumbsUp" || sort === "upvotes" || !sort) {
-      // Default: order strictly by thumbsUp count descending
+    } else if (sort === "thumbs" || sort === "thumbsUp") {
+      // Sort strictly by thumbsUp count descending
       posts.sort((a, b) => {
         const diff = (b._count?.thumbsUp ?? 0) - (a._count?.thumbsUp ?? 0);
+        if (diff !== 0) return diff;
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      });
+    } else if (sort === "upvotes" || !sort) {
+      // Default: order strictly by upvotes count descending
+      posts.sort((a, b) => {
+        const diff = (b._count?.upvotes ?? 0) - (a._count?.upvotes ?? 0);
         if (diff !== 0) return diff;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });

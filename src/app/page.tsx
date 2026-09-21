@@ -3,6 +3,7 @@ import { FeaturedHero } from "@/components/blog/FeaturedHero";
 import { DiscoveryFeed } from "@/components/blog/DiscoveryFeed";
 import { BlogPost, CategoryItem } from "@/types/blog";
 import { getPostThumbsCount } from "@/lib/thumbs";
+import { getPostUpvotesCount } from "@/lib/upvotes";
 
 export const dynamic = "force-dynamic";
 
@@ -94,7 +95,7 @@ export default async function Home() {
         },
       }))) as unknown as BlogPost | null;
 
-    // Fetch initial posts for the discovery grid, ranked by thumbs up endorsements
+    // Fetch initial posts for the discovery grid, ranked by upvotes count
     const rawInitialPosts = await prisma.post.findMany({
       where: { published: true },
       orderBy: { createdAt: "desc" },
@@ -147,25 +148,27 @@ export default async function Home() {
       },
     })) as unknown as CategoryItem[];
 
-    // Map each post to attach calculated/persistent thumbsUp count and sort by thumbsUp count descending
-    const postsWithThumbs = (rawInitialPosts as unknown as BlogPost[]).map((p) => {
+    // Map each post to attach calculated/persistent upvotes and thumbsUp count, and sort by upvotes count descending
+    const postsWithCounts = (rawInitialPosts as unknown as BlogPost[]).map((p) => {
       const thumbsUp = getPostThumbsCount(p.id);
+      const upvotes = getPostUpvotesCount(p.id);
       return {
         ...p,
         _count: {
           ...p._count,
           thumbsUp,
+          upvotes,
         },
       };
     });
 
-    postsWithThumbs.sort((a, b) => {
-      const diff = (b._count?.thumbsUp ?? 0) - (a._count?.thumbsUp ?? 0);
+    postsWithCounts.sort((a, b) => {
+      const diff = (b._count?.upvotes ?? 0) - (a._count?.upvotes ?? 0);
       if (diff !== 0) return diff;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-    initialPosts = postsWithThumbs.slice(0, 12);
+    initialPosts = postsWithCounts.slice(0, 12);
   } catch (dbErr) {
     console.warn("Home page database connection error, rendering empty feed fallback:", dbErr);
   }

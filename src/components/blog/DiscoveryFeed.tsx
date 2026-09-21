@@ -21,7 +21,7 @@ export const DiscoveryFeed: React.FC<DiscoveryFeedProps> = ({
   const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedSort, setSelectedSort] = useState<SortOption>("thumbs");
+  const [selectedSort, setSelectedSort] = useState<SortOption>("upvotes");
   const [isLoading, setIsLoading] = useState(false);
   const isFirstRender = useRef(true);
 
@@ -67,11 +67,11 @@ export const DiscoveryFeed: React.FC<DiscoveryFeedProps> = ({
   const handleResetFilters = () => {
     setSearchQuery("");
     setSelectedCategory("all");
-    setSelectedSort("thumbs");
+    setSelectedSort("upvotes");
   };
 
   const hasActiveFilters = Boolean(
-    searchQuery.trim() || selectedCategory !== "all" || selectedSort !== "thumbs"
+    searchQuery.trim() || selectedCategory !== "all" || selectedSort !== "upvotes"
   );
 
   return (

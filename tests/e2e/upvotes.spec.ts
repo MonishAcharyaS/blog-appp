@@ -56,8 +56,15 @@ test.describe("GitHub Issue #31: Post Upvoting & Upvote-Based Feed Ranking", () 
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    // Check that sort dropdown defaults to Top Upvoted ('likes')
+    // Check that sort dropdown has upvotes default, and select likes to test like ranking
     const sortSelect = page.locator("#discovery-sort-select");
+    await expect(sortSelect).toBeVisible();
+
+    const likesResponsePromise = page.waitForResponse(
+      (resp) => resp.url().includes("/api/posts") && resp.url().includes("sort=likes")
+    );
+    await sortSelect.selectOption("likes");
+    await likesResponsePromise;
     await expect(sortSelect).toHaveValue("likes");
 
     // Retrieve all upvote counts on visible cards

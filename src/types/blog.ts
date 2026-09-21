@@ -34,6 +34,7 @@ export interface BlogPost {
     likes: number;
     comments: number;
     thumbsUp?: number;
+    upvotes?: number;
   };
 }
 

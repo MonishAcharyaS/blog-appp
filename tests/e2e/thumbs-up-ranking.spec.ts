@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("GitHub Issue #41: Feed Ranking by Thumbs Up Endorsement Count", () => {
-  test("TC-FEED-THUMBS-01: Discovery feed defaults to sorting by Thumbs Up count descending", async ({
+  test("TC-FEED-THUMBS-01: Discovery feed can sort by Thumbs Up count descending", async ({
     page,
   }) => {
     await page.goto("/");
@@ -10,6 +10,13 @@ test.describe("GitHub Issue #41: Feed Ranking by Thumbs Up Endorsement Count", (
     // Wait for the feed and sort select
     const sortSelect = page.locator('[data-testid="discovery-sort-select"]');
     await expect(sortSelect).toBeVisible();
+
+    // Select Top Endorsed (thumbs)
+    const thumbsResponsePromise = page.waitForResponse(
+      (res) => res.url().includes("/api/posts") && res.url().includes("sort=thumbs")
+    );
+    await sortSelect.selectOption("thumbs");
+    await thumbsResponsePromise;
     await expect(sortSelect).toHaveValue("thumbs");
 
     // Retrieve all thumbs up count texts from the visible post cards in feed
@@ -63,6 +70,13 @@ test.describe("GitHub Issue #41: Feed Ranking by Thumbs Up Endorsement Count", (
 
     const sortSelect = page.locator('[data-testid="discovery-sort-select"]');
     await expect(sortSelect).toBeVisible();
+
+    // Select Top Endorsed (thumbs) first
+    const initThumbsPromise = page.waitForResponse((res) =>
+      res.url().includes("/api/posts") && res.url().includes("sort=thumbs")
+    );
+    await sortSelect.selectOption("thumbs");
+    await initThumbsPromise;
 
     // Get first card title when sorted by Top Endorsed (thumbs)
     const firstCardTitleInitial = await page
