@@ -148,7 +148,7 @@ export default async function Home() {
       },
     })) as unknown as CategoryItem[];
 
-    // Map each post to attach calculated/persistent upvotes and thumbsUp count, and sort by upvotes count descending
+    // Map each post to attach calculated/persistent upvotes and thumbsUp count, and sort by thumbsUp count descending
     const postsWithCounts: BlogPost[] = (rawInitialPosts as unknown as BlogPost[]).map((p) => {
       const thumbsUp = getPostThumbsCount(p.id);
       const upvotes = getPostUpvotesCount(p.id);
@@ -164,7 +164,7 @@ export default async function Home() {
     });
 
     postsWithCounts.sort((a, b) => {
-      const diff = (b._count?.upvotes ?? 0) - (a._count?.upvotes ?? 0);
+      const diff = (b._count?.thumbsUp ?? 0) - (a._count?.thumbsUp ?? 0);
       if (diff !== 0) return diff;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });

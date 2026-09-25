@@ -21,7 +21,7 @@ export const DiscoveryFeed: React.FC<DiscoveryFeedProps> = ({
   const [posts, setPosts] = useState<BlogPost[]>(initialPosts);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [selectedSort, setSelectedSort] = useState<SortOption>("upvotes");
+  const [selectedSort, setSelectedSort] = useState<SortOption>("thumbs");
   const [isLoading, setIsLoading] = useState(false);
   const isFirstRender = useRef(true);
 

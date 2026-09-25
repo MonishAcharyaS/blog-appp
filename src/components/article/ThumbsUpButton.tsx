@@ -51,13 +51,7 @@ export const ThumbsUpButton: React.FC<ThumbsUpButtonProps> = ({
     }
   }, [postId]);
 
-  const handleToggle = () => {
-    // If not authenticated, open login prompt modal
-    if (status !== "authenticated" || !session) {
-      setShowAuthModal(true);
-      return;
-    }
-
+  const handleToggle = async () => {
     // Trigger micro-scale spring animation
     setIsAnimating(true);
     setTimeout(() => setIsAnimating(false), 300);
@@ -65,6 +59,7 @@ export const ThumbsUpButton: React.FC<ThumbsUpButtonProps> = ({
     const nextEndorsed = !isEndorsed;
     const nextCount = nextEndorsed ? thumbsCount + 1 : Math.max(0, thumbsCount - 1);
 
+    // Optimistic UI update
     setIsEndorsed(nextEndorsed);
     setThumbsCount(nextCount);
 
@@ -75,6 +70,30 @@ export const ThumbsUpButton: React.FC<ThumbsUpButtonProps> = ({
           JSON.stringify({ endorsed: nextEndorsed, count: nextCount })
         );
       } catch (e) {}
+    }
+
+    try {
+      const res = await fetch(`/api/posts/${postId}/thumbs`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ delta: nextEndorsed ? 1 : -1 }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (typeof data.thumbsCount === "number") {
+          setThumbsCount(data.thumbsCount);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem(
+                `thumbs_up_${postId}`,
+                JSON.stringify({ endorsed: nextEndorsed, count: data.thumbsCount })
+              );
+            } catch (e) {}
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Thumbs up sync error:", e);
     }
   };
 

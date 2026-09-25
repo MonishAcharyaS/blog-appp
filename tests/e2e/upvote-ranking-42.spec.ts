@@ -7,9 +7,15 @@ test.describe("GitHub Issue #42: Order Posts Based on Upvote Count Instead of Li
     await page.goto("/");
     await page.waitForLoadState("networkidle");
 
-    // Verify sort dropdown is visible and defaults to "upvotes" (Top Upvoted)
+    // Select 'upvotes' (Top Upvoted)
     const sortSelect = page.locator('[data-testid="discovery-sort-select"]');
     await expect(sortSelect).toBeVisible();
+
+    const upvotesPromise = page.waitForResponse(
+      (res) => res.url().includes("/api/posts") && res.url().includes("sort=upvotes")
+    );
+    await sortSelect.selectOption("upvotes");
+    await upvotesPromise;
     await expect(sortSelect).toHaveValue("upvotes");
 
     // Verify blog cards exist in the feed
@@ -74,26 +80,26 @@ test.describe("GitHub Issue #42: Order Posts Based on Upvote Count Instead of Li
 
     const sortSelect = page.locator('[data-testid="discovery-sort-select"]');
     await expect(sortSelect).toBeVisible();
-    await expect(sortSelect).toHaveValue("upvotes");
+    await expect(sortSelect).toHaveValue("thumbs");
 
     // Verify 'likes' option does NOT exist in the sort dropdown
     const likesOption = sortSelect.locator('option[value="likes"]');
     await expect(likesOption).toHaveCount(0);
 
-    // Switch sort dropdown to Top Endorsed (thumbs)
-    const thumbsResponsePromise = page.waitForResponse(
-      (res) => res.url().includes("/api/posts") && res.url().includes("sort=thumbs")
-    );
-    await sortSelect.selectOption("thumbs");
-    await thumbsResponsePromise;
-    await expect(sortSelect).toHaveValue("thumbs");
-
-    // Switch back to Top Upvoted (upvotes)
+    // Switch sort dropdown to Top Upvoted (upvotes)
     const upvotesResponsePromise = page.waitForResponse(
       (res) => res.url().includes("/api/posts") && res.url().includes("sort=upvotes")
     );
     await sortSelect.selectOption("upvotes");
     await upvotesResponsePromise;
     await expect(sortSelect).toHaveValue("upvotes");
+
+    // Switch back to Top Endorsed (thumbs)
+    const thumbsResponsePromise = page.waitForResponse(
+      (res) => res.url().includes("/api/posts") && res.url().includes("sort=thumbs")
+    );
+    await sortSelect.selectOption("thumbs");
+    await thumbsResponsePromise;
+    await expect(sortSelect).toHaveValue("thumbs");
   });
 });
