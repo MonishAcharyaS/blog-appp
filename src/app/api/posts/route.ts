@@ -103,22 +103,15 @@ export async function GET(request: NextRequest) {
     });
 
     // Custom sorting:
-    if (sort === "likes") {
-      // Sort strictly by likes count descending
-      posts.sort((a, b) => {
-        const diff = (b._count?.likes ?? 0) - (a._count?.likes ?? 0);
-        if (diff !== 0) return diff;
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      });
-    } else if (sort === "thumbs" || sort === "thumbsUp") {
+    if (sort === "thumbs" || sort === "thumbsUp") {
       // Sort strictly by thumbsUp count descending
       posts.sort((a, b) => {
         const diff = (b._count?.thumbsUp ?? 0) - (a._count?.thumbsUp ?? 0);
         if (diff !== 0) return diff;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-    } else if (sort === "upvotes" || !sort) {
-      // Default: order strictly by upvotes count descending
+    } else if (sort === "upvotes" || sort === "likes" || !sort) {
+      // Top Upvoted: order strictly by upvotes count descending (likes cannot sort posts descending)
       posts.sort((a, b) => {
         const diff = (b._count?.upvotes ?? 0) - (a._count?.upvotes ?? 0);
         if (diff !== 0) return diff;
