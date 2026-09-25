@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const rawSearch = searchParams.get("search") || "";
     const categorySlug = searchParams.get("category") || "";
-    const sort = searchParams.get("sort") || "upvotes"; // upvotes | thumbs | latest | likes | views
+    const sort = searchParams.get("sort") || "thumbs"; // thumbs | upvotes | latest | likes | views
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.max(1, Math.min(50, parseInt(searchParams.get("limit") || "12", 10)));
     const skip = (page - 1) * limit;
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
       orderBy = { views: "desc" };
     }
 
-    const isCustomSort = sort === "upvotes" || sort === "thumbs" || sort === "thumbsUp" || sort === "likes";
+    const isCustomSort = !sort || sort === "upvotes" || sort === "thumbs" || sort === "thumbsUp" || sort === "likes";
 
     const [total, rawPosts] = await Promise.all([
       prisma.post.count({ where }),
@@ -103,17 +103,17 @@ export async function GET(request: NextRequest) {
     });
 
     // Custom sorting:
-    if (sort === "thumbs" || sort === "thumbsUp") {
-      // Sort strictly by thumbsUp count descending
+    if (sort === "upvotes") {
+      // Order strictly by upvotes count descending
       posts.sort((a, b) => {
-        const diff = (b._count?.thumbsUp ?? 0) - (a._count?.thumbsUp ?? 0);
+        const diff = (b._count?.upvotes ?? 0) - (a._count?.upvotes ?? 0);
         if (diff !== 0) return diff;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-    } else if (sort === "upvotes" || sort === "likes" || !sort) {
-      // Top Upvoted: order strictly by upvotes count descending (likes cannot sort posts descending)
+    } else if (sort === "thumbs" || sort === "thumbsUp" || sort === "likes" || !sort) {
+      // Default & Top Endorsed: order strictly by thumbsUp count descending
       posts.sort((a, b) => {
-        const diff = (b._count?.upvotes ?? 0) - (a._count?.upvotes ?? 0);
+        const diff = (b._count?.thumbsUp ?? 0) - (a._count?.thumbsUp ?? 0);
         if (diff !== 0) return diff;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });

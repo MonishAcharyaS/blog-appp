@@ -85,26 +85,33 @@ test.describe("GitHub Issue #40: Dedicated Thumbs Up Action Button Next to Like 
     expect(revertedCount).toBe(initialCount);
   });
 
-  test("TC-THUMBS-NEG-01: Anonymous visitor clicking Thumbs Up triggers non-blocking sign-in modal", async ({
+  test("TC-THUMBS-NEG-01: Anonymous visitor clicking Thumbs Up increments count directly without sign-in modal", async ({
     page,
   }) => {
     // Clear cookies & storage to ensure visitor is anonymous
     await page.context().clearCookies();
     await page.goto("/");
-    await page.waitForLoadState("domcontentloaded");
+    await page.waitForLoadState("networkidle");
 
     const firstCard = page.locator('[data-testid="blog-card"]').first();
     const thumbsUpBtn = firstCard.locator('[data-testid="card-thumbs-up-btn"]');
+    const thumbsCount = firstCard.locator('[data-testid="card-thumbs-up-count"]');
 
+    const initialCount = parseInt(await thumbsCount.innerText(), 10);
+
+    // Click Thumbs Up without logging in
+    const thumbsResponsePromise = page.waitForResponse(
+      (res) => res.url().includes("/thumbs") && res.status() === 200
+    );
     await thumbsUpBtn.click();
+    await thumbsResponsePromise;
 
-    // Modal should appear
+    // Verify modal does NOT appear
     const authModal = page.locator('[data-testid="thumbs-auth-modal"]');
-    await expect(authModal).toBeVisible();
-    await expect(authModal).toContainText("Thumbs Up Article");
-    await expect(authModal).toContainText("Sign In");
+    await expect(authModal).not.toBeVisible();
 
-    // Dismiss modal by clicking outside
-    await page.keyboard.press("Escape");
+    // Verify count increments
+    const newCount = parseInt(await thumbsCount.innerText(), 10);
+    expect(newCount).toBe(initialCount + 1);
   });
 });

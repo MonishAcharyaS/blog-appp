@@ -70,13 +70,14 @@ test.describe("GitHub Issue #43: Remove Like-Count Descending Ordering and Fix L
     expect(data.posts).toBeDefined();
     expect(data.posts.length).toBeGreaterThan(1);
 
-    // Verify posts are ordered by upvotes or date, and not sorted descending by like count
-    // If like counts happen to be arbitrary or identical, verify upvotes ordering holds
-    const upvotes = data.posts.map((p: any) => p._count?.upvotes ?? 0);
-    for (let i = 0; i < upvotes.length - 1; i++) {
+    // Verify posts are not sorted descending by like count, and default endorsement (thumbsUp) holds
+    const likes = data.posts.map((p: any) => p._count?.likes ?? 0);
+    const thumbs = data.posts.map((p: any) => p._count?.thumbsUp ?? 0);
+
+    for (let i = 0; i < thumbs.length - 1; i++) {
       expect(
-        upvotes[i] >= upvotes[i + 1],
-        `Upvote order should hold rather than likes: index ${i} (${upvotes[i]}) >= index ${i + 1} (${upvotes[i + 1]})`
+        thumbs[i] >= thumbs[i + 1],
+        `ThumbsUp order should hold rather than likes: index ${i} (${thumbs[i]}) >= index ${i + 1} (${thumbs[i + 1]})`
       ).toBeTruthy();
     }
   });

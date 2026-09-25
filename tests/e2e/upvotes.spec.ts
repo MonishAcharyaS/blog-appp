@@ -52,15 +52,21 @@ test.describe("GitHub Issue #31: Post Upvoting & Upvote-Based Feed Ranking", () 
     await expect(authModal).not.toBeVisible();
   });
 
-  test("TC-31.3: Feed defaults to Top Upvoted and ranks posts with most upvotes first", async ({
+  test("TC-31.3: Feed can sort by Top Upvoted and ranks posts with most upvotes first", async ({
     page,
   }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    // Check that sort dropdown has upvotes default
+    // Check sort dropdown and select upvotes
     const sortSelect = page.locator("#discovery-sort-select");
     await expect(sortSelect).toBeVisible();
+
+    const upvoteResponsePromise = page.waitForResponse(
+      (res) => res.url().includes("/api/posts") && res.url().includes("sort=upvotes")
+    );
+    await sortSelect.selectOption("upvotes");
+    await upvoteResponsePromise;
     await expect(sortSelect).toHaveValue("upvotes");
 
     // Retrieve all upvote counts on visible cards

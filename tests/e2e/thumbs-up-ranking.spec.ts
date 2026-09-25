@@ -11,12 +11,7 @@ test.describe("GitHub Issue #41: Feed Ranking by Thumbs Up Endorsement Count", (
     const sortSelect = page.locator('[data-testid="discovery-sort-select"]');
     await expect(sortSelect).toBeVisible();
 
-    // Select Top Endorsed (thumbs)
-    const thumbsResponsePromise = page.waitForResponse(
-      (res) => res.url().includes("/api/posts") && res.url().includes("sort=thumbs")
-    );
-    await sortSelect.selectOption("thumbs");
-    await thumbsResponsePromise;
+    // Feed already defaults to Top Endorsed (thumbs)
     await expect(sortSelect).toHaveValue("thumbs");
 
     // Retrieve all thumbs up count texts from the visible post cards in feed
@@ -71,12 +66,8 @@ test.describe("GitHub Issue #41: Feed Ranking by Thumbs Up Endorsement Count", (
     const sortSelect = page.locator('[data-testid="discovery-sort-select"]');
     await expect(sortSelect).toBeVisible();
 
-    // Select Top Endorsed (thumbs) first
-    const initThumbsPromise = page.waitForResponse((res) =>
-      res.url().includes("/api/posts") && res.url().includes("sort=thumbs")
-    );
-    await sortSelect.selectOption("thumbs");
-    await initThumbsPromise;
+    // Verify it defaults to Top Endorsed (thumbs)
+    await expect(sortSelect).toHaveValue("thumbs");
 
     // Get first card title when sorted by Top Endorsed (thumbs)
     const firstCardTitleInitial = await page
