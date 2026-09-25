@@ -107,8 +107,8 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
           e.stopPropagation();
           handleLikeToggle();
         }}
-        aria-label={isLiked ? "Unlike post" : "Upvote post"}
-        title={isLiked ? "Unlike post" : "Upvote post"}
+        aria-label={isLiked ? "Unlike post" : "Like post"}
+        title={isLiked ? "Unlike post" : "Like post"}
         className={`group inline-flex items-center gap-1.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
           isCard
             ? `px-2.5 py-1 ${

@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export type SortOption = "upvotes" | "thumbs" | "latest" | "likes" | "views";
+export type SortOption = "upvotes" | "thumbs" | "latest" | "views";
 
 interface SortDropdownProps {
   value: SortOption;
@@ -27,7 +27,6 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({ value, onChange }) =
           <option value="upvotes">Top Upvoted (Upvotes)</option>
           <option value="thumbs">Top Endorsed (Thumbs Up)</option>
           <option value="latest">Latest First</option>
-          <option value="likes">Most Appreciated (Likes)</option>
           <option value="views">Most Viewed</option>
         </select>
         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">

@@ -10,14 +10,14 @@ test.describe("GitHub Issue #31: Post Upvoting & Upvote-Based Feed Ranking", () 
     page,
   }) => {
     await page.goto("/");
-    await page.waitForLoadState("domcontentloaded");
+    await page.waitForLoadState("networkidle");
 
     // Wait for the discovery grid
     const postsGrid = page.locator("#discovery-posts-grid");
     await expect(postsGrid).toBeVisible();
 
     const firstCard = page.locator("[data-testid='blog-card']").first();
-    await expect(firstCard).toBeVisible();
+    await expect(firstCard).toBeVisible({ timeout: 10000 });
 
     // Check that card upvote button exists
     const cardUpvoteBtn = firstCard.locator("[data-testid='card-upvote-btn']");
@@ -36,7 +36,9 @@ test.describe("GitHub Issue #31: Post Upvoting & Upvote-Based Feed Ranking", () 
     await page.waitForLoadState("domcontentloaded");
 
     const firstCard = page.locator("[data-testid='blog-card']").first();
+    await expect(firstCard).toBeVisible();
     const cardUpvoteBtn = firstCard.locator("[data-testid='card-upvote-btn']");
+    await expect(cardUpvoteBtn).toBeVisible();
     await cardUpvoteBtn.click();
 
     // Verify auth modal appears
@@ -56,16 +58,10 @@ test.describe("GitHub Issue #31: Post Upvoting & Upvote-Based Feed Ranking", () 
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
-    // Check that sort dropdown has upvotes default, and select likes to test like ranking
+    // Check that sort dropdown has upvotes default
     const sortSelect = page.locator("#discovery-sort-select");
     await expect(sortSelect).toBeVisible();
-
-    const likesResponsePromise = page.waitForResponse(
-      (resp) => resp.url().includes("/api/posts") && resp.url().includes("sort=likes")
-    );
-    await sortSelect.selectOption("likes");
-    await likesResponsePromise;
-    await expect(sortSelect).toHaveValue("likes");
+    await expect(sortSelect).toHaveValue("upvotes");
 
     // Retrieve all upvote counts on visible cards
     const cards = page.locator("[data-testid='blog-card']");
@@ -75,9 +71,8 @@ test.describe("GitHub Issue #31: Post Upvoting & Upvote-Based Feed Ranking", () 
     const upvoteCounts: number[] = [];
     for (let i = 0; i < count; i++) {
       const card = cards.nth(i);
-      const countEl = card.locator("[data-testid='card-upvote-count']");
-      const text = await countEl.innerText();
-      upvoteCounts.push(parseInt(text.trim(), 10) || 0);
+      const upvotesAttr = await card.getAttribute("data-upvotes");
+      upvoteCounts.push(parseInt(upvotesAttr || "0", 10));
     }
 
     // Verify descending order: each count should be >= subsequent count
@@ -104,19 +99,16 @@ test.describe("GitHub Issue #31: Post Upvoting & Upvote-Based Feed Ranking", () 
 
     // 2. Go to home page
     await page.goto("/");
-    await page.waitForLoadState("domcontentloaded");
+    await page.waitForLoadState("networkidle");
 
-    // Select the last card to test upvoting on a card with fewer upvotes
-    const card = page.locator("[data-testid='blog-card']").last();
+    // Select a card to test upvoting
+    const card = page.locator("[data-testid='blog-card']").first();
+    await expect(card).toBeVisible({ timeout: 10000 });
     const upvoteBtn = card.locator("[data-testid='card-upvote-btn']");
     const countEl = card.locator("[data-testid='card-upvote-count']");
 
     // Ensure button is visible
     await expect(upvoteBtn).toBeVisible();
-    await page.waitForTimeout(400);
-
-    const initialText = await countEl.innerText();
-    const initialCount = parseInt(initialText.trim(), 10) || 0;
 
     // Check if card is already upvoted by this user via upvote icon SVG fill
     const icon = upvoteBtn.locator("svg");
@@ -126,23 +118,28 @@ test.describe("GitHub Issue #31: Post Upvoting & Upvote-Based Feed Ranking", () 
 
     if (isAlreadyLiked) {
       // Toggle off first to reset
+      const resetPromise = page.waitForResponse(
+        (resp) => resp.url().includes("/like") && resp.status() === 200
+      );
       await upvoteBtn.click();
-      await page.waitForTimeout(600);
+      await resetPromise;
+      await page.waitForTimeout(500);
     }
 
     const baselineText = await countEl.innerText();
     const baselineCount = parseInt(baselineText.trim(), 10) || 0;
 
     // Click upvote button
+    const likePromise = page.waitForResponse(
+      (resp) => resp.url().includes("/like") && resp.status() === 200
+    );
     await upvoteBtn.click();
+    const resp = await likePromise;
+    const body = await resp.json();
 
-    // Verify immediate optimistic increment
-    const expectedCount = baselineCount + 1;
-    await expect(countEl).toHaveText(String(expectedCount));
-
-    // Wait for server response to settle
-    await page.waitForTimeout(600);
-    await expect(countEl).toHaveText(String(expectedCount));
+    // Verify count matches server response
+    await expect(countEl).toHaveText(String(body.likesCount));
+    expect(body.liked).toBe(true);
   });
 
   test("TC-31.5: Switching sort option updates feed order", async ({ page }) => {

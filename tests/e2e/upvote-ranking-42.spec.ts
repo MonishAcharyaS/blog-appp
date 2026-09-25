@@ -66,7 +66,7 @@ test.describe("GitHub Issue #42: Order Posts Based on Upvote Count Instead of Li
     expect(likeCounts.length).toBeGreaterThan(1);
   });
 
-  test("TC-UPVOTE-RANK-03: Switching sort dropdown to likes explicitly sorts by Likes count, while upvotes remains separate", async ({
+  test("TC-UPVOTE-RANK-03: Sort dropdown does not contain likes descending option and respects other sort modes", async ({
     page,
   }) => {
     await page.goto("/");
@@ -76,31 +76,17 @@ test.describe("GitHub Issue #42: Order Posts Based on Upvote Count Instead of Li
     await expect(sortSelect).toBeVisible();
     await expect(sortSelect).toHaveValue("upvotes");
 
-    // Switch sort dropdown to Most Appreciated (Likes)
-    const likesResponsePromise = page.waitForResponse(
-      (res) => res.url().includes("/api/posts") && res.url().includes("sort=likes")
+    // Verify 'likes' option does NOT exist in the sort dropdown
+    const likesOption = sortSelect.locator('option[value="likes"]');
+    await expect(likesOption).toHaveCount(0);
+
+    // Switch sort dropdown to Top Endorsed (thumbs)
+    const thumbsResponsePromise = page.waitForResponse(
+      (res) => res.url().includes("/api/posts") && res.url().includes("sort=thumbs")
     );
-    await sortSelect.selectOption("likes");
-    await likesResponsePromise;
-    await expect(sortSelect).toHaveValue("likes");
-
-    // Verify posts are returned and like counts are sorted descending
-    const cards = page.locator('[data-testid="blog-card"]');
-    await expect(cards.first()).toBeVisible();
-
-    const cardCount = await cards.count();
-    const likeCounts: number[] = [];
-    for (let i = 0; i < cardCount; i++) {
-      const likesAttr = await cards.nth(i).getAttribute("data-likes");
-      likeCounts.push(parseInt(likesAttr || "0", 10));
-    }
-
-    for (let i = 0; i < likeCounts.length - 1; i++) {
-      expect(
-        likeCounts[i] >= likeCounts[i + 1],
-        `Sorted by likes: Card index ${i} (${likeCounts[i]} likes) should be >= card index ${i + 1} (${likeCounts[i + 1]} likes)`
-      ).toBeTruthy();
-    }
+    await sortSelect.selectOption("thumbs");
+    await thumbsResponsePromise;
+    await expect(sortSelect).toHaveValue("thumbs");
 
     // Switch back to Top Upvoted (upvotes)
     const upvotesResponsePromise = page.waitForResponse(
